@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"hotel_booking/database"
-	"hotel_booking/models"
+	"backend/database"
+	"backend/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

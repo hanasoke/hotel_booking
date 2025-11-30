@@ -1,8 +1,8 @@
 package main
 
 import (
-	"hotel_booking/database"
-	"hotel_booking/handlers"
+	"backend/database"
+	"backend/handlers"
 	"log"
 
 	"github.com/gin-gonic/gin"

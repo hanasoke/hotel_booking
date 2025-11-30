@@ -1,8 +1,8 @@
 package database
 
 import (
+	"backend/models"
 	"fmt"
-	"hotel-booking/models"
 	"log"
 
 	"gorm.io/driver/mysql"
@@ -21,13 +21,25 @@ func InitDB() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Auto migrate tables
+	// Auto migrate tables - disable foreign key constraints sementara
+	err = DB.Exec("SET FOREIGN_KEY_CHECKS=0").Error
+	if err != nil {
+		log.Fatal("Failed to disable foreign key checks:", err)
+	}
+
+	// Migrate tables
 	err = DB.AutoMigrate(&models.Room{}, &models.Booking{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
-	fmt.Println("Database connected successfully")
+	// Enable foreign key constraints
+	err = DB.Exec("SET FOREIGN_KEY_CHECKS=1").Error
+	if err != nil {
+		log.Fatal("Failed to enable foreign key checks:", err)
+	}
+
+	fmt.Println("Database connected and migrated successfully")
 
 	// Seed sample data
 	seedSampleData()
