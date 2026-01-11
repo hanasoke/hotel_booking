@@ -18,5 +18,4 @@ func ConnectDB() {
 
 	log.Println("database connected")
 	DB = db
-
 }
