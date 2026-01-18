@@ -18,7 +18,7 @@
               <th scope="col">User Name</th>
               <th scope="col">Check In Date</th>
               <th scope="col">Check Out Date</th>
-              <th scope="col">Room Picture</th>
+              <th scope="col">Room Number</th>
               <th scope="col">Total Price</th>
               <th scope="col">Transaction Proof</th>
               <th scope="col">Created At</th>
@@ -32,7 +32,7 @@
               <td>Tuesday, 8 October 2024</td>
               <td>Tuesday, 9 October 2024</td>
               <td>
-                <img src="..." class="img-thumbnail" alt="...">
+                DR567A
               </td>
               <td>Rp. 78.0000</td>
               <td>
@@ -44,7 +44,7 @@
                   <button type="button" class="btn btn-outline-danger">
                     <img src="/assets/icons/trash.svg" alt="Delete">
                   </button>
-                  <button type="button" class="btn btn-outline-info">
+                  <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <img src="/assets/icons/eye.svg" alt="Detail">
                   </button>
                   <button type="button" class="btn btn-outline-success">
@@ -53,6 +53,77 @@
                 </div>
               </td>
             </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Data Booking</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3 row">
+                      <label for="user_name" class="col-sm-4 col-form-label">User Name</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="user_name" value="Saitama">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="user_phone" class="col-sm-4 col-form-label">User Phone</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="user_phone" value="625372832832">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="check_in_date" class="col-sm-4 col-form-label">Check in Date</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="check_in_date" value="Tuesday, 2 October 2023">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="check_out_date" class="col-sm-4 col-form-label">Check out Date</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="check_out_date" value="Tuesday, 10 October 2023">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="room_number" class="col-sm-4 col-form-label">Room Number</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="room_number" value="RN32">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="room_picture" class="col-sm-4 col-form-label">Room Picture</label>
+                      <div class="col-sm-8">
+                        <img src="..." class="img-thumbnail" alt="...">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="total_price" class="col-sm-4 col-form-label">Total Price</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="total_price" value="Rp. 89.000">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="price_per_day" class="col-sm-4 col-form-label">Transaction Proof</label>
+                      <div class="col-sm-8">
+                        <img src="..." class="img-thumbnail" alt="...">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="created_at" class="col-sm-4 col-form-label">Created At</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="created_at" value="Tuesday, 1 October 2023">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </tbody>
         </table>
       </div>
