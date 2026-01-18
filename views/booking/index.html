@@ -1,10 +1,46 @@
 {{ define "title" }}Booking{{ end }}
 {{ define "content" }}
   <div class="container mt-3">
+    <div class="row mb-3">
+      <div class="col">
+        <h1>Data Booking</h1>
+      </div>
+      <div class="col mt-3">
+        <button type="button" class="btn btn-outline-success float-end">Booking Tempat</button>
+      </div>
+    </div>
     <div class="row">
       <div class="col">
-        <h1>Hello, world!</h1>
-      <p>Ini halaman booking</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col" class="text-center">No</th>
+              <th scope="col">User Name</th>
+              <th scope="col">Check In Date</th>
+              <th scope="col">Check Out Date</th>
+              <th scope="col">Room Picture</th>
+              <th scope="col">Total Price</th>
+              <th scope="col">Transaction Proof</th>
+              <th scope="col">Created At</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            <tr>
+              <th scope="row" class="text-center">1</th>
+              <td>asd</td>
+              <td>Tuesday, 8 October 2024</td>
+              <td>Tuesday, 9 October 2024</td>
+              <td>
+                <img src="..." class="img-thumbnail" alt="...">
+              </td>
+              <td>Rp. 78.0000</td>
+              <td>
+                <img src="..." class="img-thumbnail" alt="...">
+              </td>
+              <td>Tuesday, 2 October 2024</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
