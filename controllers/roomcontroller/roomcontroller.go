@@ -1,14 +1,13 @@
 package roomcontroller
 
 import (
-	"html/template"
+	"hotel_booking/controllers"
 	"net/http"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
 
-	tmpl, err := template.ParseFiles(
-		"views/templates/base.html",
+	tmpl, err := controllers.LoadTemplate(
 		"views/room/index.html",
 	)
 	if err != nil {
