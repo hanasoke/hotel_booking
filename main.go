@@ -22,9 +22,13 @@ func main() {
 
 	// Booking
 	http.HandleFunc("/bookings", bookingcontroller.Index)
+	http.HandleFunc("/add_booking", bookingcontroller.Add)
+	http.HandleFunc("/edit_booking", bookingcontroller.Edit)
 
 	// Room
 	http.HandleFunc("/rooms", roomcontroller.Index)
+	http.HandleFunc("/add_room", roomcontroller.Add)
+	http.HandleFunc("/edit_room", roomcontroller.Edit)
 
 	log.Println("Server running on port 2026")
 	http.ListenAndServe(":2026", nil)

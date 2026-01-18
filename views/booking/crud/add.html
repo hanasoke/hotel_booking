@@ -1,0 +1,59 @@
+{{ define "title" }}Add Booking{{ end }}
+{{ define "content" }}
+  <div class="container mt-3">
+    <div class="row mb-3">
+      <div class="col">
+        <h1>Tambah Booking</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <form>
+            <div class="mb-3">
+                <label for="user_name" class="form-label">User Name</label>
+                <input type="text" class="form-control" id="user_name">
+            </div>
+            <div class="mb-3">
+                <label for="user_phone" class="form-label">User Phone</label>
+                <input type="number" class="form-control" id="user_phone">
+            </div>
+
+            
+            <div class="mb-3">
+                <label for="room_id">Room Number</label>
+                <select class="form-select" aria-label="room_id" id="room_id">
+                    <option selected>Choice Your Room</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="transaction_proof" class="form-label">Input Your Transaction Proof</label>
+                <input class="form-control" type="file" id="transaction_proof">
+            </div>
+            <div class="mb-3">
+                <label for="check_in" class="form-label">Check IN</label>
+                <input type="date" class="form-control" id="check_in">
+            </div>
+
+            <div class="mb-3">
+                <label for="check_out" class="form-label">Check OUT</label>
+                <input type="date" class="form-control" id="check_out">
+            </div>
+
+            <div class="mb-3">
+                <label for="total_price" class="form-label">Total Price</label>
+                <input type="number" class="form-control" id="total_price">
+            </div>
+
+
+
+            <button type="submit" class="btn btn-primary float-end">Submit</button>
+        </form>
+        <a href="/bookings" class="btn btn-secondary float-start">Back</a>
+      </div>
+    </div>
+  </div>
+{{ end }}
