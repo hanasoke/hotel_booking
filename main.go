@@ -10,6 +10,11 @@ import (
 func main() {
 	config.ConnectDB()
 
+	// Static files
+	http.Handle("/assets/",
+		http.StripPrefix("/assets/",
+			http.FileServer(http.Dir("assets"))))
+
 	// Homepage
 	http.HandleFunc("/", homepage.Index)
 

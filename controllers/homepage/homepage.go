@@ -6,10 +6,15 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	temp, err := template.ParseFiles("views/homepage/index.html")
+
+	tmpl, err := template.ParseFiles(
+		"views/templates/base.html",
+		"views/homepage/index.html",
+	)
 	if err != nil {
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	temp.Execute(w, nil)
+	tmpl.ExecuteTemplate(w, "base.html", nil)
 }
