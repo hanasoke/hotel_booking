@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type Room struct {
 	ID          int
@@ -12,4 +15,14 @@ type Room struct {
 	Image       string
 	PricePerDay int
 	CreatedAt   time.Time
+}
+
+type RoomForm struct {
+	Name        string
+	Type        string
+	Description string
+	Capacity    int
+	Status      string
+	PricePerDay int
+	ImageFile   *multipart.FileHeader
 }
