@@ -17,6 +17,11 @@ func main() {
 		http.StripPrefix("/assets/",
 			http.FileServer(http.Dir("assets"))))
 
+	// Static files untuk uploads
+	http.Handle("/uploads/",
+		http.StripPrefix("/uploads/",
+			http.FileServer(http.Dir("uploads"))))
+
 	// Homepage
 	http.HandleFunc("/", homepage.Index)
 

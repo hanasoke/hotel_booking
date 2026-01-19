@@ -48,15 +48,15 @@
               <td>{{ $room.Type }}</td>
               <td>{{ $room.Capacity }} Person</td>
               <td>
-                <span class="badge {{ if eq $room.Status "active" }}bg-success{{ else }}bg-danger{{ end }}">
+                <span class="badge {{ if eq $room.Status `active` }} bg-success{{ else }}bg-danger{{ end }}">
                   {{ $room.Status }}
                 </span>
               </td>
               <td>
                 {{ if $room.Image }}
-                <img src="/uploads/rooms/{{ $room.Image }}" class="img-thumbnail" width="100" alt="{{ $room.Name }}">
+                  <img src="/uploads/rooms/{{ $room.Image }}" class="img-thumbnail" width="100" alt="{{ $room.Name }}">
                 {{ else }}
-                <span class="text-muted">No Image</span>
+                  <span class="text-muted">No Image</span>
                 {{ end }}
               </td>
               <td>Rp {{ formatNumber $room.PricePerDay }}</td>
@@ -88,9 +88,9 @@
               <!-- Modal content same as before -->
             </div>
             {{ else }}
-            <tr>
-              <td colspan="9" class="text-center">No rooms found</td>
-            </tr>
+              <tr>
+                <td colspan="9" class="text-center">No rooms found</td>
+              </tr>
             {{ end }}
           </tbody>
         </table>
