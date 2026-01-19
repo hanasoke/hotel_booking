@@ -42,128 +42,61 @@
           </thead>
           <tbody class="table-group-divider">
             {{ range $index, $room := .Rooms }}
-            <tr>
-              <th scope="row" class="text-center">{{ add $index 1 }}</th>
-              <td>{{ $room.Name }}</td>
-              <td>{{ $room.Type }}</td>
-              <td>{{ $room.Capacity }} Person</td>
-              <td>
-                <span class="badge {{ if eq $room.Status `active` }} bg-success{{ else }}bg-danger{{ end }}">
-                  {{ $room.Status }}
-                </span>
-              </td>
-              <td>
-                {{ if $room.Image }}
-                  <img src="/uploads/rooms/{{ $room.Image }}" class="img-thumbnail" width="100" alt="{{ $room.Name }}">
-                {{ else }}
-                  <span class="text-muted">No Image</span>
-                {{ end }}
-              </td>
-              <td>Rp {{ formatNumber $room.PricePerDay }}</td>
-              <td>{{ $room.CreatedAt.Format "02 January 2006" }}</td>
-              <td>
-                <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" 
-                          data-bs-target="#deleteModal{{ $room.ID }}">
-                    <img src="/assets/icons/trash.svg" alt="Delete">
-                  </button>
-                  <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" 
-                          data-bs-target="#detailModal{{ $room.ID }}">
-                    <img src="/assets/icons/eye.svg" alt="Detail">
-                  </button>
-                  <a href="/edit_room" class="btn btn-outline-success">
-                    <img src="/assets/icons/pencil-square.svg" alt="Edit">
-                  </a>
-                </div>
-              </td>
-            </tr>
-            
-            <!-- Detail Modal for each room -->
-            <div class="modal fade" id="detailModal{{ $room.ID }}" tabindex="-1">
-               <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="editModalLabel">Room Detail</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <tr>
+                <th scope="row" class="text-center">{{ add $index 1 }}</th>
+                <td>{{ $room.Name }}</td>
+                <td>{{ $room.Type }}</td>
+                <td>{{ $room.Capacity }} Person</td>
+                <td>
+                  <span class="badge {{ if eq $room.Status `active` }} bg-success{{ else }}bg-danger{{ end }}">
+                    {{ $room.Status }}
+                  </span>
+                </td>
+                <td>
+                  {{ if $room.Image }}
+                    <img src="/uploads/rooms/{{ $room.Image }}" class="img-thumbnail" width="100" alt="{{ $room.Name }}">
+                  {{ else }}
+                    <span class="text-muted">No Image</span>
+                  {{ end }}
+                </td>
+                <td>Rp {{ formatNumber $room.PricePerDay }}</td>
+                <td>{{ $room.CreatedAt.Format "02 January 2006" }}</td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" 
+                            data-bs-target="#deleteModal{{ $room.ID }}">
+                      <img src="/assets/icons/trash.svg" alt="Delete">
+                    </button>
+                    <a href="/detail_room" class="btn btn-outline-info">
+                      <img src="/assets/icons/eye.svg" alt="Detail">
+                    </a>
+                    <a href="/edit_room" class="btn btn-outline-success">
+                      <img src="/assets/icons/pencil-square.svg" alt="Edit">
+                    </a>
                   </div>
-                  <div class="modal-body">
-                    <div class="mb-3 row">
-                      <label for="room_number" class="col-sm-4 col-form-label">Room Number</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="room_number" value="Room Number">
-                      </div>
+                </td>
+              </tr>
+              <!-- Delete Modal for each room -->
+              <div class="modal fade" id="deleteModal{{ $room.ID }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="editModalLabel">Delete Room</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="mb-3 row">
-                      <label for="type" class="col-sm-4 col-form-label">Type</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="type" value="Type">
-                      </div>
+                    <div class="modal-body">
+                      <strong class="text-danger">
+                        <p>Are You sure want to delete this room <strong>?</strong></p>
+                        <p class="text-danger">This action cannot be undone.</p>
+                      </strong>
                     </div>
-                    <div class="mb-3 row">
-                      <label for="description" class="col-sm-4 col-form-label">Description</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="description" value="Description">
-                      </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
                     </div>
-                    <div class="mb-3 row">
-                      <label for="capacity" class="col-sm-4 col-form-label">Capacity</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="capacity" value="Capacity">
-                      </div>
-                    </div>
-                    <div class="mb-3 row">
-                      <label for="status" class="col-sm-4 col-form-label">Status</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="status" value="Status">
-                      </div>
-                    </div>
-                    <div class="mb-3 row">
-                      <label for="price_per_day" class="col-sm-4 col-form-label">Image</label>
-                      <div class="col-sm-8">
-                        <img src="..." class="img-thumbnail" alt="...">
-                      </div>
-                    </div>
-                    <div class="mb-3 row">
-                      <label for="price_per_day" class="col-sm-4 col-form-label">Price Per Day</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="price_per_day" value="Price Per Day">
-                      </div>
-                    </div>
-                    <div class="mb-3 row">
-                      <label for="created_at" class="col-sm-4 col-form-label">Created At</label>
-                      <div class="col-sm-8">
-                        <input type="text" readonly class="form-control-plaintext" id="created_at" value="Created At">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <!-- Delete Modal for each room -->
-            <div class="modal fade" id="deleteModal{{ $room.ID }}" tabindex="-1">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="editModalLabel">Delete Room</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <strong class="text-danger">
-                      <p>Are You sure want to delete this room <strong>?</strong></p>
-                      <p class="text-danger">This action cannot be undone.</p>
-                    </strong>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
-                  </div>
-                </div>
-              </div>
-            </div>
             {{ else }}
               <tr>
                 <td colspan="9" class="text-center">No rooms found</td>

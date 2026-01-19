@@ -144,3 +144,15 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.ExecuteTemplate(w, "base.html", nil)
 }
+
+func Detail(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := controllers.LoadTemplate(
+		"views/room/crud/detail.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "base.html", nil)
+}

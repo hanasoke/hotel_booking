@@ -34,6 +34,7 @@ func main() {
 	http.HandleFunc("/rooms", roomcontroller.Index)
 	http.HandleFunc("/add_room", roomcontroller.Add)
 	http.HandleFunc("/edit_room", roomcontroller.Edit)
+	http.HandleFunc("/detail_room", roomcontroller.Detail)
 
 	log.Println("Server running on port 2026")
 	http.ListenAndServe(":2026", nil)
