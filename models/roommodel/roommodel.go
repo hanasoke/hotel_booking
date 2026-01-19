@@ -26,13 +26,13 @@ func Insert(room entities.Room, imageFile *multipart.FileHeader) (error, string)
 		return errors.New("Deskripsi wajib diisi"), ""
 	}
 	if room.Capacity <= 0 {
-		return errors.New("Kapasitas harus lebih dari 0"), ""
+		return errors.New("Kapasitas ruangan wajib diisi"), ""
 	}
 	if room.Status == "" {
 		return errors.New("Status wajib dipilih"), ""
 	}
 	if room.PricePerDay <= 0 {
-		return errors.New("Harga per hari harus lebih dari 0"), ""
+		return errors.New("Harga tidak boleh kosong"), ""
 	}
 
 	// Validasi duplikat nama

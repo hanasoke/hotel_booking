@@ -71,7 +71,7 @@
                           data-bs-target="#detailModal{{ $room.ID }}">
                     <img src="/assets/icons/eye.svg" alt="Detail">
                   </button>
-                  <a href="/edit_room/{{ $room.ID }}" class="btn btn-outline-success">
+                  <a href="/edit_room" class="btn btn-outline-success">
                     <img src="/assets/icons/pencil-square.svg" alt="Edit">
                   </a>
                 </div>
@@ -80,12 +80,86 @@
             
             <!-- Detail Modal for each room -->
             <div class="modal fade" id="detailModal{{ $room.ID }}" tabindex="-1">
-              <!-- Modal content same as before -->
+               <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Room Detail</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3 row">
+                      <label for="room_number" class="col-sm-4 col-form-label">Room Number</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="room_number" value="Room Number">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="type" class="col-sm-4 col-form-label">Type</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="type" value="Type">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="description" class="col-sm-4 col-form-label">Description</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="description" value="Description">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="capacity" class="col-sm-4 col-form-label">Capacity</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="capacity" value="Capacity">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="status" class="col-sm-4 col-form-label">Status</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="status" value="Status">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="price_per_day" class="col-sm-4 col-form-label">Image</label>
+                      <div class="col-sm-8">
+                        <img src="..." class="img-thumbnail" alt="...">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="price_per_day" class="col-sm-4 col-form-label">Price Per Day</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="price_per_day" value="Price Per Day">
+                      </div>
+                    </div>
+                    <div class="mb-3 row">
+                      <label for="created_at" class="col-sm-4 col-form-label">Created At</label>
+                      <div class="col-sm-8">
+                        <input type="text" readonly class="form-control-plaintext" id="created_at" value="Created At">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <!-- Delete Modal for each room -->
             <div class="modal fade" id="deleteModal{{ $room.ID }}" tabindex="-1">
-              <!-- Modal content same as before -->
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Delete Room</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <strong class="text-danger">Are You sure want to delete this room ?</strong>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                  </div>
+                </div>
+              </div>
             </div>
             {{ else }}
               <tr>
