@@ -22,6 +22,9 @@ func Insert(room entities.Room, imageFile *multipart.FileHeader) (error, string)
 	if room.Type == "" {
 		return errors.New("Tipe ruangan wajib diisi"), ""
 	}
+	if room.Description == "" {
+		return errors.New("Deskripsi wajib diisi"), ""
+	}
 	if room.Capacity <= 0 {
 		return errors.New("Kapasitas harus lebih dari 0"), ""
 	}

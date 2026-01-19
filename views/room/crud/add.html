@@ -34,7 +34,7 @@
                        value="{{ if .FormData.type }}{{ .FormData.type }}{{ end }}">
             </div>
             <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
+                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
                 <textarea class="form-control" id="description" name="description" rows="3">{{ if .FormData.description }}{{ .FormData.description }}{{ end }}</textarea>
             </div>
             <div class="mb-3">
@@ -68,40 +68,4 @@
       </div>
     </div>
   </div>
-  
-  <script>
-  function validateForm() {
-      const capacity = document.getElementById('capacity').value;
-      const price = document.getElementById('price_per_day').value;
-      const image = document.getElementById('image').files[0];
-      
-      if (capacity <= 0) {
-          alert('Kapasitas harus lebih dari 0');
-          return false;
-      }
-      
-      if (price <= 0) {
-          alert('Harga per hari harus lebih dari 0');
-          return false;
-      }
-      
-      if (image) {
-          // Validasi ukuran file (client-side)
-          const maxSize = 2 * 1024 * 1024; // 2MB
-          if (image.size > maxSize) {
-              alert('Ukuran gambar terlalu besar. Maksimal 2MB');
-              return false;
-          }
-          
-          // Validasi tipe file
-          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-          if (!allowedTypes.includes(image.type)) {
-              alert('Format gambar tidak didukung. Gunakan JPG, PNG, atau GIF');
-              return false;
-          }
-      }
-      
-      return true;
-  }
-  </script>
 {{ end }}
