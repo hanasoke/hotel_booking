@@ -6,59 +6,102 @@
         <h1>Tambah Ruangan</h1>
       </div>
     </div>
-    <div class="row">
+    
+    <!-- Error Message -->
+    {{ if .Error }}
+    <div class="row mb-3">
       <div class="col">
-        {{ if .Error }}
-          <div class="alert alert-danger">{{ .Error }}</div>
-        {{ end }}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ .Error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
       </div>
     </div>
+    {{ end }}
+    
     <div class="row">
       <div class="col">
-        {{ if .Success }}
-          <div class="alert alert-success">{{ .Success }}</div>
-        {{ end }}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <form action="/add_booking" method="POST" enctype="multipart/form-data">
+        <form action="/add_room" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
             <div class="mb-3">
-                <label for="name" class="form-label">Room Name</label>
-                <input type="text" class="form-control" name="name" id="name">
+                <label for="name" class="form-label">Room Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="name" id="name" 
+                       value="{{ if .FormData.name }}{{ .FormData.name }}{{ end }}">
+                <div class="form-text">Nama ruangan harus unik</div>
             </div>
             <div class="mb-3">
-                <label for="type" class="form-label">Type</label>
-                <input type="text" class="form-control" name="type" id="type">
+                <label for="type" class="form-label">Type <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="type" id="type" 
+                       value="{{ if .FormData.type }}{{ .FormData.type }}{{ end }}">
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ if .FormData.description }}{{ .FormData.description }}{{ end }}</textarea>
             </div>
             <div class="mb-3">
-                <label for="capacity" class="form-label">Capacity</label>
-                <input type="number" class="form-control" name="capacity" id="capacity">
+                <label for="capacity" class="form-label">Capacity <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="capacity" id="capacity" min="1" 
+                       value="{{ if .FormData.capacity }}{{ .FormData.capacity }}{{ end }}">
             </div>
             <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
+                <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                 <select class="form-select" aria-label="status" id="status" name="status">
-                    <option selected>Select The Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="">Select The Status</option>
+                    <option value="active" {{ if eq .FormData.status "active" }}selected{{ end }}>Active</option>
+                    <option value="inactive" {{ if eq .FormData.status "inactive" }}selected{{ end }}>Inactive</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Room Image</label>
-                <input class="form-control" type="file" id="image" name="image">
+                <label for="image" class="form-label">Room Image <span class="text-danger">*</span></label>
+                <input class="form-control" type="file" id="image" name="image" accept="image/*">
+                <div class="form-text">Format: JPG, PNG, GIF. Maksimal 2MB</div>
             </div>
             <div class="mb-3">
-                <label for="price_per_day" class="form-label">Price Per Day</label>
-                <input type="number" class="form-control" id="price_per_day" name="price_per_day">
+                <label for="price_per_day" class="form-label">Price Per Day <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="price_per_day" name="price_per_day" min="1" 
+                       value="{{ if .FormData.price_per_day }}{{ .FormData.price_per_day }}{{ end }}">
             </div>
-            <button type="submit" class="btn btn-primary float-end">Submit</button>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary float-end">Submit</button>
+                <a href="/rooms" class="btn btn-secondary float-start">Back</a>
+            </div>
         </form>
-        <a href="/rooms" class="btn btn-secondary float-start">Back</a>
       </div>
     </div>
   </div>
+  
+  <script>
+  function validateForm() {
+      const capacity = document.getElementById('capacity').value;
+      const price = document.getElementById('price_per_day').value;
+      const image = document.getElementById('image').files[0];
+      
+      if (capacity <= 0) {
+          alert('Kapasitas harus lebih dari 0');
+          return false;
+      }
+      
+      if (price <= 0) {
+          alert('Harga per hari harus lebih dari 0');
+          return false;
+      }
+      
+      if (image) {
+          // Validasi ukuran file (client-side)
+          const maxSize = 2 * 1024 * 1024; // 2MB
+          if (image.size > maxSize) {
+              alert('Ukuran gambar terlalu besar. Maksimal 2MB');
+              return false;
+          }
+          
+          // Validasi tipe file
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+          if (!allowedTypes.includes(image.type)) {
+              alert('Format gambar tidak didukung. Gunakan JPG, PNG, atau GIF');
+              return false;
+          }
+      }
+      
+      return true;
+  }
+  </script>
 {{ end }}

@@ -1,3 +1,4 @@
+// entities/room.go
 package entities
 
 import (
