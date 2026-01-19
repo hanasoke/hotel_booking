@@ -41,10 +41,10 @@
               <td>Tuesday, 2 October 2024</td>
               <td>
                 <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
-                  <button type="button" class="btn btn-outline-danger">
+                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
                     <img src="/assets/icons/trash.svg" alt="Delete">
                   </button>
-                  <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#editModal">
                     <img src="/assets/icons/eye.svg" alt="Detail">
                   </button>
                   <a href="/edit_booking" class="btn btn-outline-success">
@@ -55,11 +55,11 @@
             </tr>
 
             <!-- Detail Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Data Booking</h1>
+                    <h1 class="modal-title fs-5" id="editModalLabel">Data Booking</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
@@ -120,6 +120,25 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Cancel Booking ?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <strong class="text-danger">Are You sure want to cancel this room booking ?</strong>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
                   </div>
                 </div>
               </div>
