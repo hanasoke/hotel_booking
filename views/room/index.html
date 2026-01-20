@@ -96,16 +96,29 @@
                       <h1 class="modal-title fs-5" id="editModalLabel">Delete Room</h1>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                      <strong class="text-danger">
-                        <p>Are You sure want to delete this room <strong>?</strong></p>
-                        <p class="text-danger">This action cannot be undone.</p>
-                      </strong>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
-                    </div>
+
+                    <form method="POST" action="/delete_room">
+                      <input type="hidden" name="id" value="{{ $room.ID }}">
+                      <div class="modal-body">
+                        <strong class="text-danger">
+                          <p>Are You sure want to delete this room <strong>"{{ $room.Name }}"</strong>?</p>
+                          <p class="text-danger">This action cannot be undone.</p>
+                          {{ if eq $room.Status "active" }}
+                            <div class="alert alert-warning">
+                              <small>
+                                <strong>Warning:</strong> This Room is currently active.
+                                <br> 
+                                Deleting it may affect existing bookings.
+                              </small>
+                            </div>
+                          {{ end }}
+                        </strong>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>

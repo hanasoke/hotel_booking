@@ -330,3 +330,57 @@ func Update(room entities.Room, imageFile *multipart.FileHeader, oldImage string
 
 	return nil, "Data ruangan berhasil diupdate"
 }
+
+func Delete(id int) (error, string) {
+	// First, check if the room exists and get image path
+	var imagePath string
+	queryCheck := `SELECT image FROM rooms WHERE id = ?`
+	err := config.DB.QueryRow(queryCheck, id).Scan(&imagePath)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("Ruangan tidak ditemukan"), ""
+		}
+		return fmt.Errorf("Gagal mengambil data ruangan: %v", err), ""
+	}
+
+	// Delete from database
+	query := `DELETE FROM rooms WHERE id = ?`
+	result, err := config.DB.Exec(query, id)
+
+	if err != nil {
+		return fmt.Errorf("Gagal menghapus data: %v", err), ""
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.New("Ruangan tidak ditemukan"), ""
+	}
+
+	// Delete image file if exists
+	if imagePath != "" {
+		uploadDir := "uploads/rooms"
+		filePath := filepath.Join(uploadDir, imagePath)
+		if _, err := os.Stat(filePath); err == nil {
+			err = os.Remove(filePath)
+			if err != nil {
+				// Log error but don't return error since database delete succeeded
+				fmt.Printf("Gagal menghapus file gambar: %v\n", err)
+			}
+		}
+	}
+
+	return nil, "Data ruangan berhasil dihapus"
+}
+
+func HasBookings(id int) (bool, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM bookings WHERE room_id = ?`
+	err := config.DB.QueryRow(query, id).Scan(&count)
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

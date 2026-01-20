@@ -402,3 +402,47 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.ExecuteTemplate(w, "base.html", data)
 }
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	// Only POST method for delete
+	if r.Method != "POST" {
+		http.Error(w, "Method tidak diizinkan", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get room ID from form
+	idStr := r.FormValue("id")
+	if idStr == "" {
+		http.Redirect(w, r, "/rooms?error=ID+ruangan+tidak+ditemukan", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Redirect(w, r, "/rooms?error=ID+ruangan+tidak+valid", http.StatusSeeOther)
+		return
+	}
+
+	// Optional: Check if room has bookings before deleting
+	hasBookings, err := roommodel.HasBookings(id)
+	if err != nil {
+		http.Redirect(w, r, "/rooms?error=Gagal+memeriksa+booking: "+url.QueryEscape(err.Error()), http.StatusSeeOther)
+		return
+	}
+
+	if hasBookings {
+		http.Redirect(w, r, "/rooms?error=Ruangan+tidak+dapat+dihapus+kerena+memiliki+booking", http.StatusSeeOther)
+		return
+	}
+
+	// Delete room
+	err, successMsg := roommodel.Delete(id)
+
+	if err != nil {
+		http.Redirect(w, r, "/rooms?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+		return
+	}
+
+	// Redirect with success message
+	http.Redirect(w, r, "/rooms?success="+successMsg, http.StatusSeeOther)
+}
