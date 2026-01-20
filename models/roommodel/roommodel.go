@@ -200,7 +200,6 @@ func GetById(id int) (entities.Room, error) {
 	return room, nil
 }
 
-// Update room dengan validasi
 func Update(room entities.Room, imageFile *multipart.FileHeader, oldImage string) (error, string) {
 	// Validasi data null/kosong
 	if room.Name == "" {
@@ -284,8 +283,8 @@ func Update(room entities.Room, imageFile *multipart.FileHeader, oldImage string
 
 		imagePath = newFilename
 
-		// Hapus gambar lama jika ada
-		if oldImage != "" {
+		// Hapus gambar lama jika ada dan berbeda dengan yang baru
+		if oldImage != "" && oldImage != newFilename {
 			oldPath := filepath.Join(uploadDir, oldImage)
 			if _, err := os.Stat(oldPath); err == nil {
 				os.Remove(oldPath)

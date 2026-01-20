@@ -6,6 +6,7 @@ import (
 	"hotel_booking/models/roommodel"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -43,6 +44,7 @@ func extractFormData(r *http.Request) map[string]string {
 func Index(w http.ResponseWriter, r *http.Request) {
 	// Get success message from session/query parameter
 	successMsg := r.URL.Query().Get("success")
+	errorMsg := r.URL.Query().Get("error")
 
 	// Get all rooms
 	rooms, err := roommodel.GetAll()
@@ -54,6 +56,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	data := PageData{
 		Rooms:   rooms,
 		Success: successMsg,
+		Error:   errorMsg,
 	}
 
 	tmpl, err := controllers.LoadTemplate(
@@ -159,21 +162,18 @@ func Add(w http.ResponseWriter, r *http.Request) {
 func Edit(w http.ResponseWriter, r *http.Request) {
 	// GET Method: Tampilkan form edit
 	if r.Method == "GET" {
-		// Get room ID from query parameter
 		idStr := r.URL.Query().Get("id")
 		if idStr == "" {
 			http.Error(w, "ID ruangan tidak ditemukan", http.StatusBadRequest)
 			return
 		}
 
-		// Convert ID to integer
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
 			http.Error(w, "ID ruangan tidak valid", http.StatusBadRequest)
 			return
 		}
 
-		// Get room data from database
 		room, err := roommodel.GetById(id)
 		if err != nil {
 			if err.Error() == "Ruangan tidak ditemukan" {
@@ -185,12 +185,10 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Prepare template data
 		data := PageData{
 			Room: room,
 		}
 
-		// Load and execute template
 		tmpl, err := controllers.LoadTemplate(
 			"views/room/crud/edit.html",
 		)
@@ -206,7 +204,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 	// POST Method: Proses update
 	if r.Method == "POST" {
 		// Parse multipart form
-		err := r.ParseMultipartForm(32 << 20) // 32MB max memory
+		err := r.ParseMultipartForm(32 << 20)
 		if err != nil {
 			http.Error(w, "Gagal parsing form: "+err.Error(), http.StatusBadRequest)
 			return
@@ -214,6 +212,55 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 		// Get form values
 		formData := extractFormData(r)
+
+		// Get room ID
+		idStr := r.FormValue("id")
+		if idStr == "" {
+			http.Redirect(w, r, "/rooms?error=ID+ruangan+tidak+ditemukan", http.StatusSeeOther)
+			return
+		}
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Redirect(w, r, "/rooms?error=ID+ruangan+tidak+valid", http.StatusSeeOther)
+			return
+		}
+
+		// Cek apakah ada perubahan data
+		oldRoom, err := roommodel.GetById(id)
+		if err != nil {
+			http.Redirect(w, r, "/rooms?error=Gagal+mengambil+data+lama", http.StatusSeeOther)
+			return
+		}
+
+		// Convert form values
+		capacity, _ := strconv.Atoi(formData["capacity"])
+		pricePerDay, _ := strconv.Atoi(formData["price_per_day"])
+
+		// Cek apakah data berubah
+		hasChanged :=
+			formData["name"] != oldRoom.Name ||
+				formData["type"] != oldRoom.Type ||
+				formData["description"] != oldRoom.Description ||
+				capacity != oldRoom.Capacity ||
+				formData["status"] != oldRoom.Status ||
+				pricePerDay != oldRoom.PricePerDay
+
+		// Cek apakah ada file gambar baru
+		var imageFile *multipart.FileHeader
+		file, header, err := r.FormFile("image")
+		if err == nil {
+			imageFile = header
+			file.Close()
+			hasChanged = true // Ada gambar baru, anggap ada perubahan
+		}
+
+		// Jika tidak ada perubahan sama sekali
+		if !hasChanged {
+			// Tidak ada perubahan, langsung redirect dengan pesan sukses
+			http.Redirect(w, r, "/rooms?success=Data+tidak+ada+perubahan,+tetap+kembali+ke+halaman+utama", http.StatusSeeOther)
+			return
+		}
 
 		// Validasi required fields
 		errors := []string{}
@@ -229,7 +276,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		}
 		if !isValidInt(formData["capacity"]) {
 			errors = append(errors, "Kapasitas harus berupa angka")
-		} else if capacity, _ := strconv.Atoi(formData["capacity"]); capacity <= 0 {
+		} else if capacity <= 0 {
 			errors = append(errors, "Kapasitas harus lebih dari 0")
 		}
 		if formData["status"] == "" {
@@ -237,28 +284,14 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		}
 		if !isValidInt(formData["price_per_day"]) {
 			errors = append(errors, "Harga per hari harus berupa angka")
-		} else if price, _ := strconv.Atoi(formData["price_per_day"]); price <= 0 {
+		} else if pricePerDay <= 0 {
 			errors = append(errors, "Harga per hari harus lebih dari 0")
-		}
-
-		// Get room ID
-		idStr := r.FormValue("id")
-		if idStr == "" {
-			errors = append(errors, "ID ruangan tidak ditemukan")
-		}
-
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			errors = append(errors, "ID ruangan tidak valid")
 		}
 
 		// Jika ada error validasi
 		if len(errors) > 0 {
-			// Get room data for form
-			room, _ := roommodel.GetById(id)
-
 			data := PageData{
-				Room:     room,
+				Room:     oldRoom,
 				Error:    strings.Join(errors, "<br>"),
 				FormData: formData,
 			}
@@ -275,18 +308,6 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Convert string to int
-		capacity, _ := strconv.Atoi(formData["capacity"])
-		pricePerDay, _ := strconv.Atoi(formData["price_per_day"])
-
-		// Get uploaded file
-		var imageFile *multipart.FileHeader
-		file, header, err := r.FormFile("image")
-		if err == nil {
-			imageFile = header
-			file.Close()
-		}
-
 		// Create room entity
 		room := entities.Room{
 			ID:          id,
@@ -298,35 +319,41 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			PricePerDay: pricePerDay,
 		}
 
-		// Get old image path
-		oldRoom, _ := roommodel.GetById(id)
-		oldImage := oldRoom.Image
-
 		// Update dengan validasi
-		err, successMsg := roommodel.Update(room, imageFile, oldImage)
+		err, successMsg := roommodel.Update(room, imageFile, oldRoom.Image)
 
 		if err != nil {
-			// Jika error, tampilkan form kembali dengan data sebelumnya
-			data := PageData{
-				Room:     oldRoom,
-				Error:    err.Error(),
-				FormData: formData,
-			}
+			// Periksa apakah error terkait validasi gambar
+			isImageError := strings.Contains(err.Error(), "Format gambar") ||
+				strings.Contains(err.Error(), "Ukuran gambar")
 
-			tmpl, tmplErr := controllers.LoadTemplate(
-				"views/room/crud/edit.html",
-			)
-			if tmplErr != nil {
-				http.Error(w, tmplErr.Error(), http.StatusInternalServerError)
+			if isImageError {
+				// Jika error gambar, tampilkan alert-danger khusus di form
+				data := PageData{
+					Room:     oldRoom,
+					Error:    err.Error(),
+					FormData: formData,
+				}
+
+				tmpl, tmplErr := controllers.LoadTemplate(
+					"views/room/crud/edit.html",
+				)
+				if tmplErr != nil {
+					http.Error(w, tmplErr.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				tmpl.ExecuteTemplate(w, "base.html", data)
+				return
+			} else {
+				// Error lainnya, redirect dengan pesan error
+				http.Redirect(w, r, "/rooms?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
 				return
 			}
-
-			tmpl.ExecuteTemplate(w, "base.html", data)
-			return
 		}
 
 		// Jika sukses, redirect ke halaman utama dengan pesan success
-		http.Redirect(w, r, "/rooms?id="+idStr+"&success="+successMsg, http.StatusSeeOther)
+		http.Redirect(w, r, "/rooms?success="+successMsg, http.StatusSeeOther)
 	}
 }
 

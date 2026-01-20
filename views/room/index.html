@@ -14,14 +14,26 @@
     
     <!-- Success Message -->
     {{ if .Success }}
-    <div class="row mb-3">
-      <div class="col">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          {{ .Success }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <div class="row mb-3">
+        <div class="col">
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ .Success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         </div>
       </div>
-    </div>
+    {{ end }}
+
+    <!-- Error Message -->
+    {{ if .Error }}
+      <div class="row mb-3">
+        <div class="col">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ .Error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
     {{ end }}
     
     <div class="row">
