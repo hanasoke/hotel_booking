@@ -3,48 +3,185 @@
   <div class="container mt-3">
     <div class="row mb-3">
       <div class="col">
-        <h1>Edit Ruangan</h1>
+        <h1>Edit Ruangan: {{ .Room.Name }}</h1>
       </div>
     </div>
+    
+    <!-- Error Message -->
+    {{ if .Error }}
+    <div class="row mb-3">
+      <div class="col">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ .Error | safeHTML }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+    {{ end }}
+    
     <div class="row">
       <div class="col">
-        <form>
-            <div class="mb-3">
-                <label for="name" class="form-label">Room Name</label>
-                <input type="text" class="form-control" id="name">
+        <form method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="id" value="{{ .Room.ID }}">
+          
+          <div class="mb-3">
+            <label for="name" class="form-label">Room Name *</label>
+            <input type="text" class="form-control {{ if and .Error (not .FormData.name) }}is-invalid{{ end }}" 
+                   id="name" name="name" value="{{ if .FormData.name }}{{ .FormData.name }}{{ else }}{{ .Room.Name }}{{ end }}" required>
+            <div class="invalid-feedback">
+              Nama ruangan wajib diisi
             </div>
-            <div class="mb-3">
-                <label for="type" class="form-label">Type</label>
-                <input type="text" class="form-control" id="type">
+          </div>
+          
+          <div class="mb-3">
+            <label for="type" class="form-label">Type *</label>
+            <input type="text" class="form-control {{ if and .Error (not .FormData.type) }}is-invalid{{ end }}" 
+                   id="type" name="type" value="{{ if .FormData.type }}{{ .FormData.type }}{{ else }}{{ .Room.Type }}{{ end }}" required>
+            <div class="invalid-feedback">
+              Tipe ruangan wajib diisi
             </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" rows="3"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label">Description *</label>
+            <textarea class="form-control {{ if and .Error (not .FormData.description) }}is-invalid{{ end }}" 
+                      id="description" name="description" rows="3" required>{{ if .FormData.description }}{{ .FormData.description }}{{ else }}{{ .Room.Description }}{{ end }}</textarea>
+            <div class="invalid-feedback">
+              Deskripsi wajib diisi
             </div>
-            <div class="mb-3">
-                <label for="capacity" class="form-label">Capacity</label>
-                <input type="number" class="form-control" id="capacity">
+          </div>
+          
+          <div class="mb-3">
+            <label for="capacity" class="form-label">Capacity *</label>
+            <input type="number" class="form-control {{ if and .Error (not .FormData.capacity) }}is-invalid{{ end }}" 
+                   id="capacity" name="capacity" min="1" value="{{ if .FormData.capacity }}{{ .FormData.capacity }}{{ else }}{{ .Room.Capacity }}{{ end }}" required>
+            <div class="invalid-feedback">
+              Kapasitas ruangan wajib diisi (minimal 1)
             </div>
-            <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select class="form-select" aria-label="status" id="status">
-                    <option selected>Select The Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="status" class="form-label">Status *</label>
+            <select class="form-select {{ if and .Error (not .FormData.status) }}is-invalid{{ end }}" 
+                    id="status" name="status" required>
+              <option value="">Select The Status</option>
+              <option value="active" {{ if or (eq .FormData.status "active") (and (not .FormData.status) (eq .Room.Status "active")) }}selected{{ end }}>Active</option>
+              <option value="inactive" {{ if or (eq .FormData.status "inactive") (and (not .FormData.status) (eq .Room.Status "inactive")) }}selected{{ end }}>Inactive</option>
+            </select>
+            <div class="invalid-feedback">
+              Status wajib dipilih
             </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Room Image</label>
-                <input class="form-control" type="file" id="image">
+          </div>
+          
+          <div class="mb-3">
+            <label for="image" class="form-label">Room Image</label>
+            {{ if .Room.Image }}
+            <div class="mb-2">
+              <img src="/uploads/rooms/{{ .Room.Image }}" class="img-thumbnail" width="150" alt="Current Image">
+              <p class="text-muted small">Gambar saat ini</p>
             </div>
-            <div class="mb-3">
-                <label for="price_per_day" class="form-label">Price Per Day</label>
-                <input type="number" class="form-control" id="price_per_day">
+            {{ end }}
+            <input class="form-control" type="file" id="image" name="image" accept="image/jpeg,image/jpg,image/png,image/gif">
+            <div class="form-text">
+              Ukuran maksimal 2MB. Format: JPG, PNG, GIF. Kosongkan jika tidak ingin mengganti gambar.
             </div>
-            <button type="submit" class="btn btn-primary float-end">Submit</button>
+          </div>
+          
+          <div class="mb-3">
+            <label for="price_per_day" class="form-label">Price Per Day *</label>
+            <div class="input-group">
+              <span class="input-group-text">Rp</span>
+              <input type="number" class="form-control {{ if and .Error (not .FormData.price_per_day) }}is-invalid{{ end }}" 
+                     id="price_per_day" name="price_per_day" min="1" value="{{ if .FormData.price_per_day }}{{ .FormData.price_per_day }}{{ else }}{{ .Room.PricePerDay }}{{ end }}" required>
+              <div class="invalid-feedback">
+                Harga per hari wajib diisi (minimal 1)
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="/rooms" class="btn btn-secondary me-md-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Update Room</button>
+          </div>
         </form>
-        <a href="/rooms" class="btn btn-secondary float-start">Back</a>
       </div>
     </div>
   </div>
+  
+  <script>
+    // Client-side validation
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      
+      form.addEventListener('submit', function(event) {
+        let isValid = true;
+        const errorMessages = [];
+        
+        // Validate name
+        const name = document.getElementById('name').value.trim();
+        if (!name) {
+          errorMessages.push('Nama ruangan wajib diisi');
+          isValid = false;
+        }
+        
+        // Validate type
+        const type = document.getElementById('type').value.trim();
+        if (!type) {
+          errorMessages.push('Tipe ruangan wajib diisi');
+          isValid = false;
+        }
+        
+        // Validate description
+        const description = document.getElementById('description').value.trim();
+        if (!description) {
+          errorMessages.push('Deskripsi wajib diisi');
+          isValid = false;
+        }
+        
+        // Validate capacity
+        const capacity = document.getElementById('capacity').value;
+        if (!capacity || capacity <= 0) {
+          errorMessages.push('Kapasitas harus lebih dari 0');
+          isValid = false;
+        }
+        
+        // Validate status
+        const status = document.getElementById('status').value;
+        if (!status) {
+          errorMessages.push('Status wajib dipilih');
+          isValid = false;
+        }
+        
+        // Validate price
+        const price = document.getElementById('price_per_day').value;
+        if (!price || price <= 0) {
+          errorMessages.push('Harga per hari harus lebih dari 0');
+          isValid = false;
+        }
+        
+        // Validate image file if uploaded
+        const imageInput = document.getElementById('image');
+        if (imageInput.files.length > 0) {
+          const file = imageInput.files[0];
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+          const maxSize = 2 * 1024 * 1024; // 2MB
+          
+          if (!allowedTypes.includes(file.type)) {
+            errorMessages.push('Format gambar tidak didukung. Gunakan JPG, PNG, atau GIF');
+            isValid = false;
+          }
+          
+          if (file.size > maxSize) {
+            errorMessages.push('Ukuran gambar terlalu besar. Maksimal 2MB');
+            isValid = false;
+          }
+        }
+        
+        if (!isValid) {
+          event.preventDefault();
+          alert('Mohon perbaiki kesalahan berikut:\n\n' + errorMessages.join('\n'));
+        }
+      });
+    });
+  </script>
 {{ end }}

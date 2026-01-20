@@ -325,8 +325,8 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Jika sukses, redirect ke halaman detail dengan pesan success
-		http.Redirect(w, r, "/detail_room?id="+idStr+"&success="+successMsg, http.StatusSeeOther)
+		// Jika sukses, redirect ke halaman utama dengan pesan success
+		http.Redirect(w, r, "/rooms?id="+idStr+"&success="+successMsg, http.StatusSeeOther)
 	}
 }
 

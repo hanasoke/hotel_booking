@@ -28,6 +28,9 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 		"add": func(a, b int) int {
 			return a + b
 		},
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
 	}
 
 	return template.New("").Funcs(funcMap).ParseFiles(files...)
