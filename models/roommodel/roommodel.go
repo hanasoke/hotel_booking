@@ -164,3 +164,38 @@ func GetAll() ([]entities.Room, error) {
 
 	return rooms, nil
 }
+
+// Get room by ID
+func GetById(id int) (entities.Room, error) {
+	var room entities.Room
+
+	query := `
+        SELECT id, name, type, description, capacity, status, 
+               image, price_per_day, created_at 
+        FROM rooms 
+        WHERE id = ?
+    `
+
+	row := config.DB.QueryRow(query, id)
+
+	err := row.Scan(
+		&room.ID,
+		&room.Name,
+		&room.Type,
+		&room.Description,
+		&room.Capacity,
+		&room.Status,
+		&room.Image,
+		&room.PricePerDay,
+		&room.CreatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return room, errors.New("Ruangan tidak ditemukan")
+		}
+		return room, err
+	}
+
+	return room, nil
+}

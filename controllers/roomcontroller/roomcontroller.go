@@ -12,6 +12,7 @@ import (
 // Struct untuk passing data ke template
 type PageData struct {
 	Rooms    []entities.Room
+	Room     entities.Room // Tambahkan ini untuk detail room
 	Error    string
 	Success  string
 	FormData map[string]string
@@ -146,6 +147,40 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func Detail(w http.ResponseWriter, r *http.Request) {
+	// Get room ID from query parameter
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "ID ruangan tidak ditemukan", http.StatusBadRequest)
+		return
+	}
+
+	// Convert ID to integer
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID ruangan tidak valid", http.StatusBadRequest)
+		return
+	}
+
+	// Get room data from database
+	room, err := roommodel.GetById(id)
+	if err != nil {
+		// Jika room tidak ditemukan
+		if err.Error() == "Ruangan tidak ditemukan" {
+			http.Error(w, "Ruangan tidak ditemukan", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "Gagal mengambil data ruangan: "+err.Error(),
+			http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare template data
+	data := PageData{
+		Room: room,
+	}
+
+	// Load and execute template
 	tmpl, err := controllers.LoadTemplate(
 		"views/room/crud/detail.html",
 	)
@@ -154,5 +189,5 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.ExecuteTemplate(w, "base.html", nil)
+	tmpl.ExecuteTemplate(w, "base.html", data)
 }

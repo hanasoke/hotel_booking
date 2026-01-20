@@ -3,63 +3,88 @@
   <div class="container mt-3">
     <div class="row mb-3">
       <div class="col">
-        <h1>Detail Ruangan</h1>
+        <h1>Detail Ruangan {{.Room.Name }}</h1>
       </div>
     </div>
     <div class="row">
-      <div class="col">
+      <div class="col-md-8">
          <div class="mb-3 row">
-            <label for="room_number" class="col-sm-4 col-form-label">Room Number</label>
+            <label for="name" class="col-sm-4 col-form-label">Room Name</label>
             <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="room_number" value="Room Number">
+            <input type="text" readonly class="form-control-plaintext" id="name" value="{{ .Room.Name }}">
             </div>
         </div>
         <div class="mb-3 row">
             <label for="type" class="col-sm-4 col-form-label">Type</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="type" value="Type">
+            <div class="col-12 col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="type" value="{{ .Room.Type }}">
             </div>
         </div>
         <div class="mb-3 row">
             <label for="description" class="col-sm-4 col-form-label">Description</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="description" value="Description">
+            <div class="col-12 col-sm-8">
+                <textarea type="text" readonly class="form-control-plaintext" id="description" rows="5">{{ .Room.Description }}</textarea>
             </div>
         </div>
         <div class="mb-3 row">
             <label for="capacity" class="col-sm-4 col-form-label">Capacity</label>
             <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="capacity" value="Capacity">
+                <input type="text" readonly class="form-control-plaintext" id="capacity" value="{{ .Room.Capacity }}">
             </div>
         </div>
         <div class="mb-3 row">
             <label for="status" class="col-sm-4 col-form-label">Status</label>
             <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="status" value="Status">
-            </div>
-        </div>
-        <div class="mb-3 row">
-            <label for="price_per_day" class="col-sm-4 col-form-label">Image</label>
-            <div class="col-sm-8">
-            <img src="..." class="img-thumbnail" alt="...">
+                <span class="badge {{ if eq .Room.Status `active` }}bg-success{{ else }}bg-danger{{ end }}">
+                    {{ .Room.Status }}
+                </span>
             </div>
         </div>
         <div class="mb-3 row">
             <label for="price_per_day" class="col-sm-4 col-form-label">Price Per Day</label>
             <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="price_per_day" value="Price Per Day">
+                <input type="text" readonly class="form-control-plaintext" id="price_per_day" value="Rp {{ formatNumber .Room.PricePerDay }}">
             </div>
         </div>
         <div class="mb-3 row">
             <label for="created_at" class="col-sm-4 col-form-label">Created At</label>
             <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="created_at" value="Created At">
+                <input type="text" readonly class="form-control-plaintext" id="created_at" value="{{ .Room.CreatedAt.Format `02 January 2006 15:40` }}">
             </div>
         </div>
-        <div class="d-grid gap-2">
-            <a href="/rooms" class="btn btn-secondary">Back</a>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Room Image</h5>
+                {{ if .Room.Image }}
+                    <img src="/uploads/rooms/{{ .Room.Image }}" class="img-fluid rounded pb-3" alt="{{ .Room.Name }}">
+                {{ else }}
+                    <div class="alert alert-warning">
+                        No Image Available
+                    </div>
+                {{ end }}
+            </div>
         </div>
       </div>
     </div>
+
+    <div class="row mt-3">
+        <div class="col">
+            <div class="d-grip gap-2 d-md-flex justify-content-md-end">
+                <a href="/rooms" class="btn btn-secondary me-md-2">
+                    <img src="/assets/icons/arrow-left.svg" alt="Back">
+                    Back to List
+                </a>
+                <a href="/edit_room?id={{ .Room.ID }}" class="btn btn-primary">
+                    <img src="/assets/icons/pencil-square.svg" alt="Edit">
+                    Edit Room
+                </a>
+            </div>
+        </div>
+    </div>
   </div>
+
+
 {{ end }}
