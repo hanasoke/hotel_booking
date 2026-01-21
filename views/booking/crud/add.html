@@ -23,7 +23,7 @@
       <div class="col">
         <form method="POST" enctype="multipart/form-data" id="bookingForm">
           <div class="mb-3">
-            <label for="user_name" class="form-label">Nama Lengkap *</label>
+            <label for="user_name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
             <input type="text" 
                    class="form-control {{ if and .Error (not .FormData.user_name) }}is-invalid{{ end }}" 
                    id="user_name" 
@@ -36,7 +36,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="user_phone" class="form-label">Nomor Telepon *</label>
+            <label for="user_phone" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
             <div class="input-group">
               <span class="input-group-text">+62</span>
               <input type="text" 
@@ -55,7 +55,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="room_id" class="form-label">Pilih Ruangan *</label>
+            <label for="room_id" class="form-label">Pilih Ruangan <span class="text-danger">*</span></label>
             <select class="form-select {{ if and .Error (not .FormData.room_id) }}is-invalid{{ end }}" 
                     id="room_id" 
                     name="room_id">
@@ -74,7 +74,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="transaction_proof" class="form-label">Bukti Transfer/Pembayaran *</label>
+            <label for="transaction_proof" class="form-label">Bukti Transfer/Pembayaran <span class="text-danger">*</span></label>
             <input class="form-control {{ if and .Error (not .FormData.transaction_proof) }}is-invalid{{ end }}" 
                    type="file" 
                    id="transaction_proof" 
@@ -90,7 +90,7 @@
 
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="check_in_date" class="form-label">Tanggal Check-in *</label>
+              <label for="check_in_date" class="form-label">Tanggal Check-in <span class="text-danger">*</span></label>
               <input type="date" 
                      class="form-control {{ if and .Error (not .FormData.check_in_date) }}is-invalid{{ end }}" 
                      id="check_in_date" 
@@ -102,7 +102,7 @@
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="check_out_date" class="form-label">Tanggal Check-out *</label>
+              <label for="check_out_date" class="form-label">Tanggal Check-out <span class="text-danger">*</span></label>
               <input type="date" 
                      class="form-control {{ if and .Error (not .FormData.check_out_date) }}is-invalid{{ end }}" 
                      id="check_out_date" 
@@ -115,7 +115,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="total_price" class="form-label">Total Harga *</label>
+            <label for="total_price" class="form-label">Total Harga</label>
             <div class="input-group">
               <span class="input-group-text">Rp</span>
                 <input  type="number" 
