@@ -6,49 +6,239 @@
         <h1>Tambah Booking</h1>
       </div>
     </div>
+
+    <!-- Error Message -->
+    {{ if .Error }}
+    <div class="row mb-3">
+      <div class="col">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ .Error | safeHTML }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+    {{ end }}
+
     <div class="row">
       <div class="col">
-        <form>
-            <div class="mb-3">
-                <label for="user_name" class="form-label">User Name</label>
-                <input type="text" class="form-control" id="user_name" placeholder="input your name">
+        <form method="POST" enctype="multipart/form-data" id="bookingForm">
+          <div class="mb-3">
+            <label for="user_name" class="form-label">Nama Lengkap *</label>
+            <input type="text" 
+                   class="form-control {{ if and .Error (not .FormData.user_name) }}is-invalid{{ end }}" 
+                   id="user_name" 
+                   name="user_name" 
+                   value="{{ .FormData.user_name }}"
+                   placeholder="Masukkan nama lengkap">
+            <div class="invalid-feedback">
+              Nama lengkap wajib diisi
             </div>
-            <div class="mb-3">
-                <label for="user_phone" class="form-label">User Phone</label>
-                <div class="input-group flex-nowrap">
-                  <span class="input-group-text" id="addon-wrapping">+ 62</span>
-                  <input type="text" class="form-control" placeholder="Input your phone number">
-                </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="user_phone" class="form-label">Nomor Telepon *</label>
+            <div class="input-group">
+              <span class="input-group-text">+62</span>
+              <input type="text" 
+                     class="form-control {{ if and .Error (not .FormData.user_phone) }}is-invalid{{ end }}" 
+                     id="user_phone" 
+                     name="user_phone" 
+                     value="{{ .FormData.user_phone }}"
+                     placeholder="81234567890">
+              <div class="invalid-feedback">
+                Nomor telepon wajib diisi (format: 081234567890)
+              </div>
             </div>
-            <div class="mb-3">
-                <label for="room_id">Room Name</label>
-                <select class="form-select" aria-label="room_id" id="room_id">
-                    <option selected>Choice Your Room</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+            <div class="form-text">
+              Contoh: 081234567890
             </div>
-            <div class="mb-3">
-                <label for="transaction_proof" class="form-label">Input Your Transaction Proof</label>
-                <input class="form-control" type="file" id="transaction_proof">
+          </div>
+
+          <div class="mb-3">
+            <label for="room_id" class="form-label">Pilih Ruangan *</label>
+            <select class="form-select {{ if and .Error (not .FormData.room_id) }}is-invalid{{ end }}" 
+                    id="room_id" 
+                    name="room_id">
+              <option value="">Pilih Ruangan</option>
+              {{ range .Rooms }}
+                <option value="{{ .ID }}" 
+                        data-price="{{ .PricePerDay }}"
+                        {{ if eq (toString .ID) $.FormData.room_id }}selected{{ end }}>
+                  {{ .Name }} - Rp {{ formatNumber .PricePerDay }}/hari (Kapasitas: {{ .Capacity }} orang)
+                </option>
+              {{ end }}
+            </select>
+            <div class="invalid-feedback">
+              Ruangan wajib dipilih
             </div>
-            <div class="mb-3">
-                <label for="check_in" class="form-label">Check IN</label>
-                <input type="date" class="form-control" id="check_in">
+          </div>
+
+          <div class="mb-3">
+            <label for="transaction_proof" class="form-label">Bukti Transfer/Pembayaran *</label>
+            <input class="form-control {{ if and .Error (not .FormData.transaction_proof) }}is-invalid{{ end }}" 
+                   type="file" 
+                   id="transaction_proof" 
+                   name="transaction_proof"
+                   accept="image/jpeg,image/jpg,image/png,image/gif,application/pdf">
+            <div class="invalid-feedback">
+              Bukti transaksi wajib diunggah
             </div>
-            <div class="mb-3">
-                <label for="check_out" class="form-label">Check OUT</label>
-                <input type="date" class="form-control" id="check_out">
+            <div class="form-text">
+              Format: JPG, PNG, GIF, PDF (Maks. 5MB)
             </div>
-            <div class="mb-3">
-                <label for="total_price" class="form-label">Total Price</label>
-                <input type="number" class="form-control" id="total_price">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="check_in_date" class="form-label">Tanggal Check-in *</label>
+              <input type="date" 
+                     class="form-control {{ if and .Error (not .FormData.check_in_date) }}is-invalid{{ end }}" 
+                     id="check_in_date" 
+                     name="check_in_date" 
+                     value="{{ .FormData.check_in_date }}">
+              <div class="invalid-feedback">
+                Tanggal check-in wajib diisi
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary float-end">Submit</button>
+
+            <div class="col-md-6 mb-3">
+              <label for="check_out_date" class="form-label">Tanggal Check-out *</label>
+              <input type="date" 
+                     class="form-control {{ if and .Error (not .FormData.check_out_date) }}is-invalid{{ end }}" 
+                     id="check_out_date" 
+                     name="check_out_date" 
+                     value="{{ .FormData.check_out_date }}">
+              <div class="invalid-feedback">
+                Tanggal check-out wajib diisi
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="total_price" class="form-label">Total Harga *</label>
+            <div class="input-group">
+              <span class="input-group-text">Rp</span>
+                <input  type="number" 
+                        class="form-control {{ if and .Error (not .FormData.total_price) }}is-invalid{{ end }}"  
+                        readonly
+                        id="total_price" 
+                        name="total_price" 
+                        value="{{ .FormData.total_price }}">
+              <div class="invalid-feedback">
+                Total harga wajib diisi
+              </div>
+            </div>
+            <div class="form-text">
+              Harga akan otomatis terhitung berdasarkan pilihan ruangan dan lama menginap
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="alert alert-info">
+              <strong>Ringkasan Booking:</strong>
+              <div id="booking_summary">
+                Pilih ruangan dan tanggal untuk melihat ringkasan
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="/bookings" class="btn btn-secondary">Kembali</a>
+            <button type="submit" class="btn btn-primary">Simpan Booking</button>
+          </div>
         </form>
-        <a href="/bookings" class="btn btn-secondary float-start">Back</a>
       </div>
     </div>
   </div>
+
+  <script>
+    // Fungsi untuk menghitung total harga
+    function calculateTotalPrice() {
+      const roomSelect = document.getElementById('room_id');
+      const checkInInput = document.getElementById('check_in_date');
+      const checkOutInput = document.getElementById('check_out_date');
+      const totalPriceInput = document.getElementById('total_price');
+      const summaryDiv = document.getElementById('booking_summary');
+
+      if (roomSelect.value && checkInInput.value && checkOutInput.value) {
+        const roomPrice = parseInt(roomSelect.options[roomSelect.selectedIndex].dataset.price);
+        const checkInDate = new Date(checkInInput.value);
+        const checkOutDate = new Date(checkOutInput.value);
+        
+        // Hitung selisih hari
+        const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        if (daysDiff > 0) {
+          const totalPrice = roomPrice * daysDiff;
+          totalPriceInput.value = totalPrice;
+          
+          // Format currency
+          const formattedPrice = totalPrice.toLocaleString('id-ID');
+          const formattedRoomPrice = roomPrice.toLocaleString('id-ID');
+          
+          summaryDiv.innerHTML = `
+            <div class="mt-2">
+              <div>Harga per hari: Rp ${formattedRoomPrice}</div>
+              <div>Lama menginap: ${daysDiff} hari</div>
+              <div class="fw-bold">Total: Rp ${formattedPrice}</div>
+            </div>
+          `;
+        } else {
+          totalPriceInput.value = '';
+          summaryDiv.innerHTML = '<span class="text-danger">Tanggal check-out harus setelah tanggal check-in</span>';
+        }
+      } else {
+        totalPriceInput.value = '';
+        summaryDiv.innerHTML = 'Pilih ruangan dan tanggal untuk melihat ringkasan';
+      }
+    }
+
+    // Set min date untuk check-in (hari ini)
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('check_in_date').min = today;
+    
+    // Event listeners
+    document.getElementById('room_id').addEventListener('change', calculateTotalPrice);
+    document.getElementById('check_in_date').addEventListener('change', function() {
+      // Set min date untuk check-out (hari setelah check-in)
+      const checkInDate = new Date(this.value);
+      const nextDay = new Date(checkInDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      document.getElementById('check_out_date').min = nextDay.toISOString().split('T')[0];
+      calculateTotalPrice();
+    });
+    document.getElementById('check_out_date').addEventListener('change', calculateTotalPrice);
+
+    // Phone number validation
+    document.getElementById('user_phone').addEventListener('input', function(e) {
+      // Hanya izinkan angka
+      this.value = this.value.replace(/[^\d]/g, '');
+    });
+
+    // Form validation before submit
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      const checkInDate = new Date(document.getElementById('check_in_date').value);
+      const checkOutDate = new Date(document.getElementById('check_out_date').value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (checkInDate < today) {
+        e.preventDefault();
+        alert('Tanggal check-in tidak boleh sebelum hari ini');
+        return false;
+      }
+
+      if (checkOutDate <= checkInDate) {
+        e.preventDefault();
+        alert('Tanggal check-out harus setelah tanggal check-in');
+        return false;
+      }
+
+      return true;
+    });
+
+    // Initial calculation
+    calculateTotalPrice();
+  </script>
 {{ end }}

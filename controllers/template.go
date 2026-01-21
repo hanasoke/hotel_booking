@@ -31,6 +31,9 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
 		},
+		"toString": func(num int) string {
+			return strconv.Itoa(num)
+		},
 	}
 
 	return template.New("").Funcs(funcMap).ParseFiles(files...)
