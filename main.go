@@ -29,6 +29,7 @@ func main() {
 	http.HandleFunc("/bookings", bookingcontroller.Index)
 	http.HandleFunc("/add_booking", bookingcontroller.Add)
 	http.HandleFunc("/edit_booking", bookingcontroller.Edit)
+	http.HandleFunc("/detail_booking", bookingcontroller.Detail)
 
 	// Room
 	http.HandleFunc("/rooms", roomcontroller.Index)
