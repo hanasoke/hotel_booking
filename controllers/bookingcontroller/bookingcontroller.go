@@ -302,11 +302,25 @@ func Add(w http.ResponseWriter, r *http.Request) {
 }
 
 func Edit(w http.ResponseWriter, r *http.Request) {
-	// Implementasi edit nanti
-	http.Error(w, "Not implemented yet", http.StatusNotImplemented)
+	tmpl, err := controllers.LoadTemplate(
+		"views/booking/crud/edit.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "base.html", nil)
 }
 
 func Detail(w http.ResponseWriter, r *http.Request) {
-	// Implementasi detail nanti
-	http.Error(w, "Not implemented yet", http.StatusNotImplemented)
+	tmpl, err := controllers.LoadTemplate(
+		"views/booking/crud/detail.html",
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "base.html", nil)
 }
