@@ -37,17 +37,14 @@
 
           <div class="mb-3">
             <label for="user_phone" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <span class="input-group-text">+62</span>
-              <input type="text" 
-                     class="form-control {{ if and .Error (not .FormData.user_phone) }}is-invalid{{ end }}" 
-                     id="user_phone" 
-                     name="user_phone" 
-                     value="{{ .FormData.user_phone }}"
-                     placeholder="81234567890">
-              <div class="invalid-feedback">
-                Nomor telepon wajib diisi (format: 081234567890)
-              </div>
+            <input type="text" 
+                    class="form-control {{ if and .Error (not .FormData.user_phone) }}is-invalid{{ end }}" 
+                    id="user_phone" 
+                    name="user_phone" 
+                    value="{{ .FormData.user_phone }}"
+                    placeholder="81234567890">
+            <div class="invalid-feedback">
+              Nomor telepon wajib diisi (format: 081234567890)
             </div>
             <div class="form-text">
               Contoh: 081234567890

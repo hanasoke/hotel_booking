@@ -39,7 +39,7 @@ func Insert(booking entities.Booking, proofFile *multipart.FileHeader) (error, s
 	// Validasi format nomor telepon (Indonesia)
 	phoneRegex := regexp.MustCompile(`^(\+62|62|0)8[1-9][0-9]{6,9}$`)
 	if !phoneRegex.MatchString(booking.UserPhone) {
-		return errors.New("Format nomor telepon tidak valid. Gunakan format Indonesia (contoh: 081234567890)"), ""
+		return errors.New("Format nomor telepon tidak valid. Gunakan format Indonesia (contoh: 081234567890 / 6285819536158)"), ""
 	}
 
 	// Normalisasi nomor telepon ke format +62
@@ -127,7 +127,7 @@ func Insert(booking entities.Booking, proofFile *multipart.FileHeader) (error, s
 		newFilename := fmt.Sprintf("proof_%d%s", time.Now().UnixNano(), fileExt)
 
 		// Create upload directory if not exists
-		uploadDir := "uploads/proofs"
+		uploadDir := "uploads/bookings"
 		if err := os.MkdirAll(uploadDir, 0755); err != nil {
 			return fmt.Errorf("Gagal membuat folder upload: %v", err), ""
 		}
@@ -190,7 +190,7 @@ func Insert(booking entities.Booking, proofFile *multipart.FileHeader) (error, s
 	if err != nil {
 		// Delete uploaded file if database insert fails
 		if proofPath != "" {
-			os.Remove(filepath.Join("uploads/proofs", proofPath))
+			os.Remove(filepath.Join("uploads/bookings", proofPath))
 		}
 		return fmt.Errorf("Gagal menyimpan data: %v", err), ""
 	}
