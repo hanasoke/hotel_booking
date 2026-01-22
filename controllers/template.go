@@ -74,6 +74,23 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 		"now": func() time.Time {
 			return time.Now()
 		},
+		"isToday": func(date time.Time) bool {
+			today := time.Now().Truncate(24 * time.Hour)
+			checkInDate := date.Truncate(24 * time.Hour)
+			return checkInDate.Equal(today)
+		},
+
+		"isPast": func(date time.Time) bool {
+			today := time.Now().Truncate(24 * time.Hour)
+			checkInDate := date.Truncate(24 * time.Hour)
+			return checkInDate.Before(today)
+		},
+
+		"isFuture": func(date time.Time) bool {
+			today := time.Now().Truncate(24 * time.Hour)
+			checkInDate := date.Truncate(24 * time.Hour)
+			return checkInDate.After(today)
+		},
 	}
 
 	return template.New("").Funcs(funcMap).ParseFiles(files...)

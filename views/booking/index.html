@@ -80,16 +80,29 @@
                   <td>{{ $booking.CreatedAt.Format "02 Jan 2006" }}</td>
                   <td>
                     <div class="btn-group btn-group-sm" role="group">
+
+                      <!-- Tombol Hapus -->
                       <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" 
                               data-bs-target="#deleteModal{{ $booking.ID }}">
                         <img src="/assets/icons/trash.svg" alt="Hapus">
                       </button>
+
+                      <!-- Tombol Detail -->
                       <a href="/detail_booking?id={{ $booking.ID }}" class="btn btn-outline-info">
                         <img src="/assets/icons/eye.svg" alt="Detail">
                       </a>
-                      <a href="/edit_booking?id={{ $booking.ID }}" class="btn btn-outline-success">
-                        <img src="/assets/icons/pencil-square.svg" alt="Edit">
-                      </a>
+
+                      <!-- Tombol Edit - Disabled jika check_in hari ini -->
+                      {{ if isFuture $booking.CheckInDate }}
+                        <a href="/edit_booking?id={{ $booking.ID }}" class="btn btn-outline-success">
+                          <img src="/assets/icons/pencil-square.svg" alt="Edit">
+                        </a>
+                      {{ else }}
+                        <button class="btn btn-outline-secondary" disabled title="Tidak dapat diedit karena check-in sudah lewat atau hari ini">
+                          <img src="/assets/icons/pencil-square.svg" alt="Edit">
+                        </button>
+                      {{ end }}
+
                     </div>
                   </td>
                   <div class="modal fade" id="deleteModal{{ .ID }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ .ID }}" aria-hidden="true">
