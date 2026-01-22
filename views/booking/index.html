@@ -70,7 +70,7 @@
                   <td>Rp {{ formatNumber $booking.TotalPrice }}</td>
                   <td>
                     {{ if $booking.TransactionProof }}
-                      <a href="/uploads/proofs/{{ $booking.TransactionProof }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <a href="/uploads/bookings/{{ $booking.TransactionProof }}" target="_blank" class="btn btn-sm btn-outline-primary">
                         Lihat Bukti
                       </a>
                     {{ else }}

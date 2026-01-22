@@ -301,18 +301,6 @@ func Add(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Edit(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := controllers.LoadTemplate(
-		"views/booking/crud/edit.html",
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	tmpl.ExecuteTemplate(w, "base.html", nil)
-}
-
 func Detail(w http.ResponseWriter, r *http.Request) {
 	// Get ID from query parameter
 	idStr := r.URL.Query().Get("id")
@@ -361,5 +349,243 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func Edit(w http.ResponseWriter, r *http.Request) {
+	// Get ID from query parameter
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Redirect(w, r, "/bookings", http.StatusSeeOther)
+		return
+	}
+
+	// Convert ID to integer
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Redirect(w, r, "/bookings", http.StatusSeeOther)
+		return
+	}
+
+	if r.Method == "GET" {
+		// Get booking data
+		booking, err := bookingmodel.GetByID(id)
+		if err != nil {
+			// Jika booking tidak ditemukan, redirect ke list
+			http.Redirect(w, r, "/bookings?error=Booking+tidak+ditemukan", http.StatusSeeOther)
+			return
+		}
+
+		// Get all active rooms
+		rooms, err := roommodel.GetAll()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Filter only active rooms
+		var activeRooms []entities.Room
+		for _, room := range rooms {
+			if room.Status == "active" || room.ID == booking.Room.ID {
+				activeRooms = append(activeRooms, room)
+			}
+		}
+
+		// Format dates for input field
+		checkInStr := booking.CheckInDate.Format("2006-01-02")
+		checkOutStr := booking.CheckOutDate.Format("2006-01-02")
+
+		data := PageData{
+			Booking: booking,
+			Rooms:   activeRooms,
+			FormData: map[string]string{
+				"user_name":      booking.UserName,
+				"user_phone":     booking.UserPhone,
+				"room_id":        strconv.Itoa(booking.Room.ID),
+				"check_in_date":  checkInStr,
+				"check_out_date": checkOutStr,
+				"total_price":    strconv.Itoa(booking.TotalPrice),
+			},
+		}
+
+		tmpl, err := controllers.LoadTemplate(
+			"views/booking/crud/edit.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		tmpl.ExecuteTemplate(w, "base.html", data)
+		return
+	}
+
+	if r.Method == "POST" {
+		// Parse multipart form
+		err := r.ParseMultipartForm(32 << 20) // 32MB max memory
+		if err != nil {
+			http.Error(w, "Gagal parsing form: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// Get form values
+		formData := extractFormData(r)
+
+		// Validasi required fields
+		errors := []string{}
+
+		if formData["user_name"] == "" {
+			errors = append(errors, "Nama lengkap wajib diisi")
+		}
+		if formData["user_phone"] == "" {
+			errors = append(errors, "Nomor telepon wajib diisi")
+		} else if !isValidPhone(formData["user_phone"]) {
+			errors = append(errors, "Format nomor telepon tidak valid. Gunakan format Indonesia")
+		}
+		if formData["room_id"] == "" {
+			errors = append(errors, "Ruangan wajib dipilih")
+		}
+		if formData["check_in_date"] == "" {
+			errors = append(errors, "Tanggal check-in wajib diisi")
+		}
+		if formData["check_out_date"] == "" {
+			errors = append(errors, "Tanggal check-out wajib diisi")
+		}
+		if formData["total_price"] == "" {
+			errors = append(errors, "Total harga wajib diisi")
+		}
+
+		// Parse dates
+		var checkInDate, checkOutDate time.Time
+		if formData["check_in_date"] != "" {
+			checkInDate, err = time.Parse("2006-01-02", formData["check_in_date"])
+			if err != nil {
+				errors = append(errors, "Format tanggal check-in tidak valid")
+			}
+		}
+		if formData["check_out_date"] != "" {
+			checkOutDate, err = time.Parse("2006-01-02", formData["check_out_date"])
+			if err != nil {
+				errors = append(errors, "Format tanggal check-out tidak valid")
+			}
+		}
+
+		// Validasi tanggal jika parse berhasil
+		if !checkInDate.IsZero() && !checkOutDate.IsZero() {
+			// Check-out tidak boleh sebelum atau sama dengan check-in
+			if !checkOutDate.After(checkInDate) {
+				errors = append(errors, "Tanggal check-out harus setelah tanggal check-in")
+			}
+		}
+
+		// Get uploaded file (optional untuk edit)
+		var proofFile *multipart.FileHeader
+		file, header, err := r.FormFile("transaction_proof")
+		if err == nil {
+			proofFile = header
+			file.Close()
+		}
+
+		// Get room price untuk validasi total harga
+		roomID, _ := strconv.Atoi(formData["room_id"])
+		var roomPrice int
+		if roomID > 0 {
+			room, err := roommodel.GetById(roomID)
+			if err != nil {
+				errors = append(errors, "Ruangan tidak ditemukan")
+			} else {
+				roomPrice = room.PricePerDay
+			}
+		}
+
+		// Hitung total harga yang seharusnya
+		totalPrice, _ := strconv.Atoi(formData["total_price"])
+		if !checkInDate.IsZero() && !checkOutDate.IsZero() && roomPrice > 0 {
+			days := int(checkOutDate.Sub(checkInDate).Hours() / 24)
+			if days < 1 {
+				days = 1
+			}
+			calculatedPrice := days * roomPrice
+
+			if totalPrice != calculatedPrice {
+				errors = append(errors,
+					"Total harga tidak sesuai. Seharusnya Rp "+strconv.Itoa(calculatedPrice))
+			}
+		}
+
+		// Jika ada error validasi
+		if len(errors) > 0 {
+			// Get booking data dan rooms
+			booking, _ := bookingmodel.GetByID(id)
+			rooms, _ := roommodel.GetAll()
+			var activeRooms []entities.Room
+			for _, room := range rooms {
+				if room.Status == "active" || room.ID == booking.Room.ID {
+					activeRooms = append(activeRooms, room)
+				}
+			}
+
+			data := PageData{
+				Booking:  booking,
+				Rooms:    activeRooms,
+				Error:    strings.Join(errors, "<br>"),
+				FormData: formData,
+			}
+
+			tmpl, tmplErr := controllers.LoadTemplate(
+				"views/booking/crud/edit.html",
+			)
+			if tmplErr != nil {
+				http.Error(w, tmplErr.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			tmpl.ExecuteTemplate(w, "base.html", data)
+			return
+		}
+
+		// Create booking entity
+		booking := entities.Booking{
+			RoomID:       roomID,
+			UserName:     formData["user_name"],
+			UserPhone:    formData["user_phone"],
+			CheckInDate:  checkInDate,
+			CheckOutDate: checkOutDate,
+			TotalPrice:   totalPrice,
+		}
+
+		// Update dengan validasi
+		err, successMsg := bookingmodel.Update(booking, proofFile, id)
+
+		if err != nil {
+			// Jika error, tampilkan form kembali dengan data sebelumnya
+			rooms, _ := roommodel.GetAll()
+			var activeRooms []entities.Room
+			for _, room := range rooms {
+				if room.Status == "active" || room.ID == booking.RoomID {
+					activeRooms = append(activeRooms, room)
+				}
+			}
+
+			data := PageData{
+				Rooms:    activeRooms,
+				Error:    err.Error(),
+				FormData: formData,
+			}
+
+			tmpl, tmplErr := controllers.LoadTemplate(
+				"views/booking/crud/edit.html",
+			)
+			if tmplErr != nil {
+				http.Error(w, tmplErr.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			tmpl.ExecuteTemplate(w, "base.html", data)
+			return
+		}
+
+		// Jika sukses, redirect ke halaman utama dengan pesan success
+		http.Redirect(w, r, "/bookings?success="+successMsg, http.StatusSeeOther)
 	}
 }

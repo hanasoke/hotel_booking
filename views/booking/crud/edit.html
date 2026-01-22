@@ -6,49 +6,134 @@
         <h1>Edit Booking</h1>
       </div>
     </div>
-    <div class="row">
+
+    <!-- Error Message -->
+    {{ if .Error }}
+    <div class="row mb-3">
       <div class="col">
-        <form>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ safeHTML .Error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+    {{ end }}
+
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="{{ .Booking.ID }}">
+            
             <div class="mb-3">
-                <label for="user_name" class="form-label">User Name</label>
-                <input type="text" class="form-control" id="user_name">
+                <label for="user_name" class="form-label">Nama Lengkap *</label>
+                <input type="text" class="form-control" id="user_name" name="user_name" 
+                       value="{{ .FormData.user_name }}" required>
+                <div class="form-text">Wajib diisi</div>
             </div>
+            
             <div class="mb-3">
-                <label for="user_phone" class="form-label">User Phone</label>
-                <div class="input-group flex-nowrap">
-                  <span class="input-group-text" id="addon-wrapping">+ 62</span>
-                  <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping">
+                <label for="user_phone" class="form-label">Nomor Telepon *</label>
+                <input type="text" class="form-control" id="user_phone" name="user_phone" 
+                       value="{{ .FormData.user_phone }}" placeholder="081234567890" required>
+                <div class="form-text">Format: 081234567890 atau 6281234567890</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="room_id" class="form-label">Ruangan *</label>
+                <select class="form-select" id="room_id" name="room_id" required>
+                    <option value="">Pilih Ruangan</option>
+                    {{ range .Rooms }}
+                        <option value="{{ .ID }}" 
+                                {{ if eq (toString .ID) $.FormData.room_id }}selected{{ end }}
+                                data-price="{{ .PricePerDay }}">
+                            {{ .Name }} - Rp {{ formatNumber .PricePerDay }}/hari
+                        </option>
+                    {{ end }}
+                </select>
+                <div class="form-text">Hanya ruangan yang tersedia pada tanggal yang dipilih</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="check_in_date" class="form-label">Check In *</label>
+                        <input type="date" class="form-control" id="check_in_date" name="check_in_date" 
+                               value="{{ .FormData.check_in_date }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="check_out_date" class="form-label">Check Out *</label>
+                        <input type="date" class="form-control" id="check_out_date" name="check_out_date" 
+                               value="{{ .FormData.check_out_date }}" required>
+                    </div>
                 </div>
             </div>
+            
             <div class="mb-3">
-                <label for="room_id">Room Number</label>
-                <select class="form-select" aria-label="room_id" id="room_id">
-                    <option selected>Choice Your Room</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+                <label for="total_price" class="form-label">Total Harga *</label>
+                <div class="input-group">
+                    <span class="input-group-text">Rp</span>
+                    <input type="number" class="form-control" id="total_price" name="total_price" 
+                           value="{{ .FormData.total_price }}" readonly>
+                </div>
+                <div class="form-text">Harga otomatis dihitung berdasarkan jumlah hari dan harga kamar</div>
             </div>
+            
             <div class="mb-3">
-                <label for="transaction_proof" class="form-label">Input Your Transaction Proof</label>
-                <input class="form-control" type="file" id="transaction_proof">
+                <label for="transaction_proof" class="form-label">Bukti Transaksi</label>
+                <input class="form-control" type="file" id="transaction_proof" name="transaction_proof">
+                <div class="form-text">
+                    {{ if .Booking.TransactionProof }}
+                        File saat ini: 
+                        <a href="/uploads/bookings/{{ .Booking.TransactionProof }}" target="_blank">
+                            {{ .Booking.TransactionProof }}
+                        </a>
+                        <br>Kosongkan jika tidak ingin mengubah
+                    {{ else }}
+                        Kosongkan jika tidak ingin mengubah
+                    {{ end }}
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="check_in" class="form-label">Check IN</label>
-                <input type="date" class="form-control" id="check_in">
+            
+            <div class="d-flex justify-content-between">
+                <a href="/bookings" class="btn btn-secondary">Kembali</a>
+                <button type="submit" class="btn btn-primary">Update Booking</button>
             </div>
-            <div class="mb-3">
-                <label for="check_out" class="form-label">Check OUT</label>
-                <input type="date" class="form-control" id="check_out">
-            </div>
-            <div class="mb-3">
-                <label for="total_price" class="form-label">Total Price</label>
-                <input type="number" class="form-control" id="total_price">
-            </div>
-            <button type="submit" class="btn btn-primary float-end">Update</button>
         </form>
-        <a href="/bookings" class="btn btn-secondary float-start">Back</a>
       </div>
     </div>
   </div>
+  
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const roomSelect = document.getElementById('room_id');
+      const checkInInput = document.getElementById('check_in_date');
+      const checkOutInput = document.getElementById('check_out_date');
+      const totalPriceInput = document.getElementById('total_price');
+      
+      function calculateTotalPrice() {
+          const roomPrice = roomSelect.options[roomSelect.selectedIndex]?.dataset.price || 0;
+          const checkIn = new Date(checkInInput.value);
+          const checkOut = new Date(checkOutInput.value);
+          
+          if (checkIn && checkOut && roomPrice > 0 && checkOut > checkIn) {
+              const timeDiff = checkOut.getTime() - checkIn.getTime();
+              const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+              const totalPrice = days * roomPrice;
+              
+              totalPriceInput.value = totalPrice > 0 ? totalPrice : roomPrice;
+          } else {
+              totalPriceInput.value = 0;
+          }
+      }
+      
+      roomSelect.addEventListener('change', calculateTotalPrice);
+      checkInInput.addEventListener('change', calculateTotalPrice);
+      checkOutInput.addEventListener('change', calculateTotalPrice);
+      
+      // Initial calculation
+      calculateTotalPrice();
+  });
+  </script>
 {{ end }}
