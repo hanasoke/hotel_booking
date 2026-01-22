@@ -7,28 +7,15 @@
       </div>
     </div>
     
-    <!-- Success Message -->
-    {{ if .Success }}
-    <div class="row mb-3">
-      <div class="col">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          {{ .Success }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {{ if isTodayOrPast .Booking.CheckInDate }}
+      <div class="row mb-3">
+        <div class="col">
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Perhatian!</strong> Booking dengan check-in tanggal hari ini atau sudah lewat tidak dapat diedit.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         </div>
       </div>
-    </div>
-    {{ end }}
-
-    <!-- Error Message -->
-    {{ if .Error }}
-    <div class="row mb-3">
-      <div class="col">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          {{ .Error }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      </div>
-    </div>
     {{ end }}
 
     <div class="row">
@@ -146,8 +133,7 @@
             <div class="mb-3 row">
               <label for="created_at" class="col-sm-4 col-form-label fw-bold">Tanggal Booking</label>
               <div class="col-sm-8">
-                <input type="text" readonly class="form-control-plaintext" id="created_at" 
-                       value="{{ formatDate .Booking.CreatedAt }}">
+                <input type="text" readonly class="form-control-plaintext" id="created_at" value="{{ formatDate .Booking.CreatedAt }}">
               </div>
             </div>
           </div>
@@ -162,10 +148,13 @@
             <img src="/assets/icons/arrow-left.svg" alt="Back">
             Kembali
           </a>
-          <a href="/edit_booking?id={{ .Booking.ID }}" class="btn btn-primary">
-            <img src="/assets/icons/pencil-square.svg" alt="Edit">
-            Edit Booking
-          </a>
+          {{ if isFuture .Booking.CheckInDate }}
+            <!-- Hanya tampilkan tombol edit jika check-in date masih di masa depan -->
+            <a href="/edit_booking?id={{ .Booking.ID }}" class="btn btn-primary">
+              <img src="/assets/icons/pencil-square.svg" alt="Edit">
+              Edit Booking
+            </a>
+          {{ end }}
         </div>
       </div>
     </div>

@@ -91,6 +91,12 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 			checkInDate := date.Truncate(24 * time.Hour)
 			return checkInDate.After(today)
 		},
+
+		"isTodayOrPast": func(date time.Time) bool {
+			today := time.Now().Truncate(24 * time.Hour)
+			checkInDate := date.Truncate(24 * time.Hour)
+			return checkInDate.Equal(today) || checkInDate.Before(today)
+		},
 	}
 
 	return template.New("").Funcs(funcMap).ParseFiles(files...)
