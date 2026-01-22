@@ -19,28 +19,28 @@
     </div>
     {{ end }}
 
-    <div class="row">
-      <div class="col-md-8 mx-auto">
+    <div class="row mb-3">
+      <div class="col">
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id" value="{{ .Booking.ID }}">
             
             <div class="mb-3">
-                <label for="user_name" class="form-label">Nama Lengkap *</label>
+                <label for="user_name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="user_name" name="user_name" 
-                       value="{{ .FormData.user_name }}" required>
+                       value="{{ .FormData.user_name }}">
                 <div class="form-text">Wajib diisi</div>
             </div>
             
             <div class="mb-3">
-                <label for="user_phone" class="form-label">Nomor Telepon *</label>
+                <label for="user_phone" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="user_phone" name="user_phone" 
-                       value="{{ .FormData.user_phone }}" placeholder="081234567890" required>
+                       value="{{ .FormData.user_phone }}" placeholder="081234567890">
                 <div class="form-text">Format: 081234567890 atau 6281234567890</div>
             </div>
             
             <div class="mb-3">
-                <label for="room_id" class="form-label">Ruangan *</label>
-                <select class="form-select" id="room_id" name="room_id" required>
+                <label for="room_id" class="form-label">Ruangan <span class="text-danger">*</span></label>
+                <select class="form-select" id="room_id" name="room_id">
                     <option value="">Pilih Ruangan</option>
                     {{ range .Rooms }}
                         <option value="{{ .ID }}" 
@@ -56,16 +56,16 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="check_in_date" class="form-label">Check In *</label>
+                        <label for="check_in_date" class="form-label">Check In <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="check_in_date" name="check_in_date" 
-                               value="{{ .FormData.check_in_date }}" required>
+                               value="{{ .FormData.check_in_date }}">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="check_out_date" class="form-label">Check Out *</label>
+                        <label for="check_out_date" class="form-label">Check Out <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="check_out_date" name="check_out_date" 
-                               value="{{ .FormData.check_out_date }}" required>
+                               value="{{ .FormData.check_out_date }}">
                     </div>
                 </div>
             </div>
