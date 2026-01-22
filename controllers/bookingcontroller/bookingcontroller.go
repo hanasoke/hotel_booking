@@ -314,6 +314,40 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func Detail(w http.ResponseWriter, r *http.Request) {
+	// Get ID from query parameter
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Redirect(w, r, "/bookings", http.StatusSeeOther)
+		return
+	}
+
+	// Convert ID to integer
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Redirect(w, r, "/bookings", http.StatusSeeOther)
+		return
+	}
+
+	// Get booking data from model
+	booking, err := bookingmodel.GetByID(id)
+	if err != nil {
+		// Jika booking tidak ditemukan, redirect ke list
+		http.Redirect(w, r, "/bookings", http.StatusSeeOther)
+		return
+	}
+
+	// Format phone number for display
+	displayPhone := booking.UserPhone
+	if strings.HasPrefix(displayPhone, "+62") {
+		displayPhone = "0" + displayPhone[3:]
+	}
+
+	// Prepare data for template
+	data := PageData{
+		Booking: booking,
+	}
+
+	// Load and execute template
 	tmpl, err := controllers.LoadTemplate(
 		"views/booking/crud/detail.html",
 	)
@@ -322,5 +356,10 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.ExecuteTemplate(w, "base.html", nil)
+	// Execute template
+	err = tmpl.ExecuteTemplate(w, "base.html", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -14,6 +14,128 @@ import (
 	"time"
 )
 
+// Helper function untuk normalisasi nomor telepon
+func normalizePhoneNumber(phone string) string {
+	// Hapus semua karakter non-digit
+	re := regexp.MustCompile(`\D`)
+	cleanPhone := re.ReplaceAllString(phone, "")
+
+	// Jika diawali 0, ganti dengan +62
+	if len(cleanPhone) > 0 && cleanPhone[0] == '0' {
+		cleanPhone = "62" + cleanPhone[1:]
+	}
+
+	// Jika diawali 62, tambahkan +
+	if len(cleanPhone) > 0 && cleanPhone[:2] == "62" {
+		cleanPhone = "+" + cleanPhone
+	}
+
+	return cleanPhone
+}
+
+// Get all available rooms for booking
+func GetAvailableRooms(checkIn, checkOut time.Time) ([]entities.Room, error) {
+	query := `
+		SELECT r.id, r.name, r.type, r.description, r.capacity, 
+			   r.status, r.image, r.price_per_day, r.created_at
+		FROM rooms r
+		WHERE r.status = 'active'
+		AND r.id NOT IN (
+			SELECT b.room_id 
+			FROM bookings b
+			WHERE (
+				(b.check_in_date <= ? AND b.check_out_date >= ?) OR
+				(b.check_in_date <= ? AND b.check_out_date >= ?) OR
+				(? <= b.check_out_date AND ? >= b.check_in_date)
+			)
+		)
+		ORDER BY r.name
+	`
+
+	rows, err := config.DB.Query(query, checkIn, checkIn, checkOut, checkOut, checkIn, checkOut)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rooms []entities.Room
+	for rows.Next() {
+		var room entities.Room
+		err := rows.Scan(
+			&room.ID,
+			&room.Name,
+			&room.Type,
+			&room.Description,
+			&room.Capacity,
+			&room.Status,
+			&room.Image,
+			&room.PricePerDay,
+			&room.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		rooms = append(rooms, room)
+	}
+
+	return rooms, nil
+}
+
+// Get all bookings
+func GetAll() ([]entities.Booking, error) {
+	query := `
+		SELECT b.id, b.room_id, b.user_name, b.user_phone, 
+			   b.check_in_date, b.check_out_date, b.total_price,
+			   b.transaction_proof, b.created_at,
+			   r.name as room_name, r.image as room_image
+		FROM bookings b
+		LEFT JOIN rooms r ON b.room_id = r.id
+		ORDER BY b.created_at DESC
+	`
+
+	rows, err := config.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []entities.Booking
+	for rows.Next() {
+		var booking entities.Booking
+		var roomName, roomImage sql.NullString
+
+		err := rows.Scan(
+			&booking.ID,
+			&booking.RoomID,
+			&booking.UserName,
+			&booking.UserPhone,
+			&booking.CheckInDate,
+			&booking.CheckOutDate,
+			&booking.TotalPrice,
+			&booking.TransactionProof,
+			&booking.CreatedAt,
+			&roomName,
+			&roomImage,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set room info
+		if roomName.Valid {
+			booking.Room = entities.Room{
+				ID:    booking.RoomID,
+				Name:  roomName.String,
+				Image: roomImage.String,
+			}
+		}
+
+		bookings = append(bookings, booking)
+	}
+
+	return bookings, nil
+}
+
 // Insert booking dengan validasi
 func Insert(booking entities.Booking, proofFile *multipart.FileHeader) (error, string) {
 	// Validasi data null/kosong
@@ -198,124 +320,50 @@ func Insert(booking entities.Booking, proofFile *multipart.FileHeader) (error, s
 	return nil, "Booking berhasil ditambahkan"
 }
 
-// Helper function untuk normalisasi nomor telepon
-func normalizePhoneNumber(phone string) string {
-	// Hapus semua karakter non-digit
-	re := regexp.MustCompile(`\D`)
-	cleanPhone := re.ReplaceAllString(phone, "")
+// Get booking by ID
+func GetByID(id int) (entities.Booking, error) {
+	var booking entities.Booking
 
-	// Jika diawali 0, ganti dengan +62
-	if len(cleanPhone) > 0 && cleanPhone[0] == '0' {
-		cleanPhone = "62" + cleanPhone[1:]
-	}
-
-	// Jika diawali 62, tambahkan +
-	if len(cleanPhone) > 0 && cleanPhone[:2] == "62" {
-		cleanPhone = "+" + cleanPhone
-	}
-
-	return cleanPhone
-}
-
-// Get all available rooms for booking
-func GetAvailableRooms(checkIn, checkOut time.Time) ([]entities.Room, error) {
-	query := `
-		SELECT r.id, r.name, r.type, r.description, r.capacity, 
-			   r.status, r.image, r.price_per_day, r.created_at
-		FROM rooms r
-		WHERE r.status = 'active'
-		AND r.id NOT IN (
-			SELECT b.room_id 
-			FROM bookings b
-			WHERE (
-				(b.check_in_date <= ? AND b.check_out_date >= ?) OR
-				(b.check_in_date <= ? AND b.check_out_date >= ?) OR
-				(? <= b.check_out_date AND ? >= b.check_in_date)
-			)
-		)
-		ORDER BY r.name
-	`
-
-	rows, err := config.DB.Query(query, checkIn, checkIn, checkOut, checkOut, checkIn, checkOut)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var rooms []entities.Room
-	for rows.Next() {
-		var room entities.Room
-		err := rows.Scan(
-			&room.ID,
-			&room.Name,
-			&room.Type,
-			&room.Description,
-			&room.Capacity,
-			&room.Status,
-			&room.Image,
-			&room.PricePerDay,
-			&room.CreatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-		rooms = append(rooms, room)
-	}
-
-	return rooms, nil
-}
-
-// Get all bookings
-func GetAll() ([]entities.Booking, error) {
 	query := `
 		SELECT b.id, b.room_id, b.user_name, b.user_phone, 
 			   b.check_in_date, b.check_out_date, b.total_price,
 			   b.transaction_proof, b.created_at,
-			   r.name as room_name, r.image as room_image
+			   r.id as room_id, r.name as room_name, r.type as room_type,
+			   r.description as room_description, r.capacity as room_capacity,
+			   r.status as room_status, r.image as room_image,
+			   r.price_per_day as room_price_per_day, r.created_at as room_created_at
 		FROM bookings b
 		LEFT JOIN rooms r ON b.room_id = r.id
-		ORDER BY b.created_at DESC
+		WHERE b.id = ?
 	`
 
-	rows, err := config.DB.Query(query)
+	err := config.DB.QueryRow(query, id).Scan(
+		&booking.ID,
+		&booking.Room.ID,
+		&booking.UserName,
+		&booking.UserPhone,
+		&booking.CheckInDate,
+		&booking.CheckOutDate,
+		&booking.TotalPrice,
+		&booking.TransactionProof,
+		&booking.CreatedAt,
+		&booking.Room.ID,
+		&booking.Room.Name,
+		&booking.Room.Type,
+		&booking.Room.Description,
+		&booking.Room.Capacity,
+		&booking.Room.Status,
+		&booking.Room.Image,
+		&booking.Room.PricePerDay,
+		&booking.Room.CreatedAt,
+	)
+
 	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var bookings []entities.Booking
-	for rows.Next() {
-		var booking entities.Booking
-		var roomName, roomImage sql.NullString
-
-		err := rows.Scan(
-			&booking.ID,
-			&booking.RoomID,
-			&booking.UserName,
-			&booking.UserPhone,
-			&booking.CheckInDate,
-			&booking.CheckOutDate,
-			&booking.TotalPrice,
-			&booking.TransactionProof,
-			&booking.CreatedAt,
-			&roomName,
-			&roomImage,
-		)
-		if err != nil {
-			return nil, err
+		if err == sql.ErrNoRows {
+			return booking, errors.New("booking not found")
 		}
-
-		// Set room info
-		if roomName.Valid {
-			booking.Room = entities.Room{
-				ID:    booking.RoomID,
-				Name:  roomName.String,
-				Image: roomImage.String,
-			}
-		}
-
-		bookings = append(bookings, booking)
+		return booking, err
 	}
 
-	return bookings, nil
+	return booking, nil
 }

@@ -6,78 +6,168 @@
         <h1>Detail Booking</h1>
       </div>
     </div>
-    <div class="row">
+    
+    <!-- Success Message -->
+    {{ if .Success }}
+    <div class="row mb-3">
       <div class="col">
-        <div class="mb-3 row">
-            <label for="user_name" class="col-sm-4 col-form-label">User Name</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="user_name" value="Saitama">
-            </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ .Success }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="mb-3 row">
-            <label for="user_phone" class="col-sm-4 col-form-label">User Phone</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="user_phone" value="625372832832">
-            </div>
+      </div>
+    </div>
+    {{ end }}
+
+    <!-- Error Message -->
+    {{ if .Error }}
+    <div class="row mb-3">
+      <div class="col">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ .Error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="mb-3 row">
-            <label for="check_in_date" class="col-sm-4 col-form-label">Check in Date</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="check_in_date" value="Tuesday, 2 October 2023">
+      </div>
+    </div>
+    {{ end }}
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3 row">
+              <label for="user_name" class="col-sm-4 col-form-label fw-bold">Nama Pemesan</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="user_name" value="{{ .Booking.UserName }}">
+              </div>
             </div>
+            
+            <div class="mb-3 row">
+              <label for="user_phone" class="col-sm-4 col-form-label fw-bold">Nomor Telepon</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="user_phone" value="{{ formatPhone .Booking.UserPhone }}">
+              </div>
+            </div>
+            
+            <div class="mb-3 row">
+              <label for="check_in_date" class="col-sm-4 col-form-label fw-bold">Check-in Date</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="check_in_date" value="{{ formatDate .Booking.CheckInDate }}">
+              </div>
+            </div>
+            
+            <div class="mb-3 row">
+              <label for="check_out_date" class="col-sm-4 col-form-label fw-bold">Check-out Date</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="check_out_date" value="{{ formatDate .Booking.CheckOutDate }}">
+              </div>
+            </div>
+            
+            <div class="mb-3 row">
+              <label for="duration" class="col-sm-4 col-form-label fw-bold">Durasi Menginap</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="duration" 
+                       value="{{ .Booking.CheckOutDate.Sub .Booking.CheckInDate | printf `%.0f` }} hari">
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mb-3 row">
-            <label for="check_out_date" class="col-sm-4 col-form-label">Check out Date</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="check_out_date" value="Tuesday, 10 October 2023">
-            </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Informasi Kamar</h5>
+            {{ if .Booking.Room.ID }}
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nama Kamar</label>
+                <p>{{ .Booking.Room.Name }}</p>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Tipe Kamar</label>
+                <p>{{ .Booking.Room.Type }}</p>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Kapasitas</label>
+                <p>{{ .Booking.Room.Capacity }} orang</p>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Harga per Hari</label>
+                <p>Rp {{ formatNumber .Booking.Room.PricePerDay }}</p>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label fw-bold">Gambar Kamar</label>
+                {{ if .Booking.Room.Image }}
+                  <img src="/uploads/rooms/{{ .Booking.Room.Image }}" class="img-fluid rounded" alt="{{ .Booking.Room.Name }}">
+                {{ else }}
+                  <p class="text-muted">Tidak ada gambar</p>
+                {{ end }}
+              </div>
+            {{ else }}
+              <p class="text-muted">Informasi kamar tidak tersedia</p>
+            {{ end }}
+          </div>
         </div>
-        <div class="mb-3 row">
-            <label for="room_name" class="col-sm-4 col-form-label">Room Name</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="room_name" value="RN32">
+      </div>
+    </div>
+    
+    <div class="row mt-3">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3 row">
+              <label for="total_price" class="col-sm-4 col-form-label fw-bold">Total Harga</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext fw-bold fs-5" id="total_price" 
+                       value="Rp {{ formatNumber .Booking.TotalPrice }}">
+              </div>
             </div>
-        </div>
-        <div class="mb-3 row">
-            <label for="room_picture" class="col-sm-4 col-form-label">Room Picture</label>
-            <div class="col-sm-8">
-            <img src="..." class="img-thumbnail" alt="...">
+            
+            <div class="mb-3 row">
+              <label for="transaction_proof" class="col-sm-4 col-form-label fw-bold">Bukti Transaksi</label>
+              <div class="col-sm-8">
+                {{ if .Booking.TransactionProof }}
+                  <a href="/uploads/bookings/{{ .Booking.TransactionProof }}" target="_blank" class="d-block mb-2">
+                    <img src="/uploads/bookings/{{ .Booking.TransactionProof }}" class="img-thumbnail" style="max-width: 300px;" alt="Bukti Transaksi">
+                  </a>
+                  <a href="/uploads/bookings/{{ .Booking.TransactionProof }}" download class="btn btn-sm btn-outline-primary">
+                    <img src="/assets/icons/download.svg" alt="Download"> Download
+                  </a>
+                {{ else }}
+                  <p class="text-muted">Tidak ada bukti transaksi</p>
+                {{ end }}
+              </div>
             </div>
-        </div>
-        <div class="mb-3 row">
-            <label for="total_price" class="col-sm-4 col-form-label">Total Price</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="total_price" value="Rp. 89.000">
+            
+            <div class="mb-3 row">
+              <label for="created_at" class="col-sm-4 col-form-label fw-bold">Tanggal Booking</label>
+              <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="created_at" 
+                       value="{{ formatDate .Booking.CreatedAt }}">
+              </div>
             </div>
-        </div>
-        <div class="mb-3 row">
-            <label for="price_per_day" class="col-sm-4 col-form-label">Transaction Proof</label>
-            <div class="col-sm-8">
-            <img src="..." class="img-thumbnail" alt="...">
-            </div>
-        </div>
-        <div class="mb-3 row">
-            <label for="created_at" class="col-sm-4 col-form-label">Created At</label>
-            <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="created_at" value="Tuesday, 1 October 2023">
-            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="row mt-3">
-        <div class="col">
-            <div class="d-grip gap-2 d-md-flex justify-content-md-end">
-                <a href="/bookings" class="btn btn-secondary me-md-2">
-                    <img src="/assets/icons/arrow-left.svg" alt="Back">
-                    Back
-                </a>
-                <a href="/edit_booking?id={{ .Room.ID }}" class="btn btn-primary">
-                    <img src="/assets/icons/pencil-square.svg" alt="Edit">
-                    Edit Room
-                </a>
-            </div>
+      <div class="col">
+        <div class="d-grip gap-2 d-md-flex justify-content-md-end">
+          <a href="/bookings" class="btn btn-secondary me-md-2">
+            <img src="/assets/icons/arrow-left.svg" alt="Back">
+            Kembali
+          </a>
+          <a href="/edit_booking?id={{ .Booking.ID }}" class="btn btn-primary">
+            <img src="/assets/icons/pencil-square.svg" alt="Edit">
+            Edit Booking
+          </a>
         </div>
+      </div>
     </div>
   </div>
 {{ end }}

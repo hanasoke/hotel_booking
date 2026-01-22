@@ -3,6 +3,8 @@ package controllers
 import (
 	"html/template"
 	"strconv"
+	"strings"
+	"time"
 )
 
 func LoadTemplate(files ...string) (*template.Template, error) {
@@ -33,6 +35,18 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 		},
 		"toString": func(num int) string {
 			return strconv.Itoa(num)
+		},
+		"formatDate": func(date time.Time) string {
+			return date.Format("Monday, 2 January 2006")
+		},
+		"formatDateShort": func(date time.Time) string {
+			return date.Format("02 Jan 2006")
+		},
+		"formatPhone": func(phone string) string {
+			if strings.HasPrefix(phone, "+62") {
+				return "0" + phone[3:]
+			}
+			return phone
 		},
 	}
 
