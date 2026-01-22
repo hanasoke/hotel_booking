@@ -92,6 +92,51 @@
                       </a>
                     </div>
                   </td>
+                  <div class="modal fade" id="deleteModal{{ .ID }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ .ID }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                          <h5 class="modal-title" id="deleteModalLabel{{ .ID }}">Konfirmasi Hapus</h5>
+                          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Apakah Anda yakin ingin menghapus booking ini?</p>
+                          <div class="alert alert-warning">
+                            <strong>Perhatian:</strong> Tindakan ini tidak dapat dibatalkan!
+                          </div>
+                          <ul>
+                            <li><strong>Nama:</strong> {{ .UserName }}</li>
+                            <li><strong>Room:</strong> {{ .Room.Name }}</li>
+                            <li><strong>Check-in:</strong> {{ .CheckInDate.Format "02 Jan 2006" }}</li>
+                            <li><strong>Total:</strong> Rp {{ formatNumber .TotalPrice }}</li>
+                          </ul>
+                          
+                          <!-- Additional validation untuk booking yang sudah lewat -->
+                          {{ if .CheckInDate.Before (now) }}
+                          <div class="alert alert-danger">
+                            <strong>Warning:</strong> Booking ini sudah melewati tanggal check-in dan tidak dapat dihapus.
+                          </div>
+                          {{ end }}
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                          
+                          {{ if .CheckInDate.Before (now) }}
+                          <button type="button" class="btn btn-danger" disabled>
+                            Tidak Dapat Dihapus
+                          </button>
+                          {{ else }}
+                          <form method="POST" action="/delete_booking" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ .ID }}">
+                            <button type="submit" class="btn btn-danger">
+                              Hapus Booking
+                            </button>
+                          </form>
+                          {{ end }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </tr>
               {{ end }}
             </tbody>

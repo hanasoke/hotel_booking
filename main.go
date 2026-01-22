@@ -31,6 +31,9 @@ func main() {
 	http.HandleFunc("/edit_booking", bookingcontroller.Edit)
 	http.HandleFunc("/detail_booking", bookingcontroller.Detail)
 
+	// Tambahkan route delete
+	http.HandleFunc("/delete_booking", bookingcontroller.Delete)
+
 	// Room
 	http.HandleFunc("/rooms", roomcontroller.Index)
 	http.HandleFunc("/add_room", roomcontroller.Add)

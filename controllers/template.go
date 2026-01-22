@@ -71,6 +71,9 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 
 			return fmt.Sprintf("%d hari", days)
 		},
+		"now": func() time.Time {
+			return time.Now()
+		},
 	}
 
 	return template.New("").Funcs(funcMap).ParseFiles(files...)

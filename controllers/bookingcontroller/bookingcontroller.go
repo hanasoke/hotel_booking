@@ -7,6 +7,7 @@ import (
 	"hotel_booking/models/roommodel"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -588,4 +589,40 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		// Jika sukses, redirect ke halaman utama dengan pesan success
 		http.Redirect(w, r, "/bookings?success="+successMsg, http.StatusSeeOther)
 	}
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	// Hanya menerima method POST
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get ID from form
+	idStr := r.FormValue("id")
+	if idStr == "" {
+		http.Redirect(w, r, "/bookings?error=ID+booking+tidak+valid", http.StatusSeeOther)
+		return
+	}
+
+	// Convert ID to integer
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Redirect(w, r, "/bookings?error=ID+booking+tidak+valid", http.StatusSeeOther)
+		return
+	}
+
+	// Call delete function
+	err, successMsg := bookingmodel.Delete(id)
+
+	if err != nil {
+		// Redirect dengan pesan error
+		errorMsg := url.QueryEscape(err.Error())
+		http.Redirect(w, r, "/bookings?error="+errorMsg, http.StatusSeeOther)
+		return
+	}
+
+	// Redirect dengan pesan success
+	successMsgEncoded := url.QueryEscape(successMsg)
+	http.Redirect(w, r, "/bookings?success="+successMsgEncoded, http.StatusSeeOther)
 }

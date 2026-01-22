@@ -7,6 +7,7 @@ import (
 	"hotel_booking/config"
 	"hotel_booking/entities"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -582,4 +583,76 @@ func Update(booking entities.Booking, proofFile *multipart.FileHeader, bookingID
 	}
 
 	return nil, "Booking berhasil diupdate"
+}
+
+// Delete booking dengan validasi dan handle file
+func Delete(id int) (error, string) {
+	// 1. Validasi apakah booking ada
+	var proofPath string
+	queryCheck := `SELECT transaction_proof FROM bookings WHERE id = ?`
+	err := config.DB.QueryRow(queryCheck, id).Scan(&proofPath)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("Booking tidak ditemukan"), ""
+		}
+		return fmt.Errorf("Gagal memeriksa booking: %v", err), ""
+	}
+
+	// 2. Validasi apakah booking sudah melewati check-in date
+	var checkInDate time.Time
+	queryCheckDate := `SELECT check_in_date FROM bookings WHERE id = ?`
+	err = config.DB.QueryRow(queryCheckDate, id).Scan(&checkInDate)
+	if err != nil {
+		return fmt.Errorf("Gagal mengambil data booking: %v", err), ""
+	}
+
+	// Cek jika check-in date sudah lewat
+	today := time.Now().Truncate(24 * time.Hour)
+	if checkInDate.Before(today) {
+		return errors.New("Tidak dapat menghapus booking yang sudah melewati tanggal check-in"), ""
+	}
+
+	// 3. Mulai transaksi database
+	tx, err := config.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("Gagal memulai transaksi: %v", err), ""
+	}
+
+	// 4. Delete dari database
+	queryDelete := `DELETE FROM bookings WHERE id = ?`
+	result, err := tx.Exec(queryDelete, id)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Gagal menghapus booking: %v", err), ""
+	}
+
+	// 5. Cek apakah ada data yang terhapus
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Gagal memeriksa data yang terhapus: %v", err), ""
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return errors.New("Tidak ada data yang dihapus"), ""
+	}
+
+	// 6. Hapus file bukti transaksi jika ada
+	if proofPath != "" {
+		filePath := filepath.Join("uploads/bookings", proofPath)
+		if _, err := os.Stat(filePath); err == nil {
+			if err := os.Remove(filePath); err != nil {
+				// Log error tapi jangan batalkan transaksi
+				log.Printf("Warning: Gagal menghapus file %s: %v", filePath, err)
+			}
+		}
+	}
+
+	// 7. Commit transaksi
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("Gagal menyimpan perubahan: %v", err), ""
+	}
+
+	return nil, "Booking berhasil dihapus"
 }
