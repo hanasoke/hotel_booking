@@ -63,12 +63,12 @@
               </div>
             </div>
             
-            <div class="mb-3 row">
-              <label for="duration" class="col-sm-4 col-form-label fw-bold">Durasi Menginap</label>
-              <div class="col-sm-8">
-                <input type="text" readonly class="form-control-plaintext" id="duration" 
-                       value="{{ .Booking.CheckOutDate.Sub .Booking.CheckInDate | printf `%.0f` }} hari">
-              </div>
+           <div class="mb-3 row">
+                <label for="duration" class="col-sm-4 col-form-label fw-bold">Durasi Menginap</label>
+                <div class="col-sm-8">
+                    <input type="text" readonly class="form-control-plaintext" id="duration" 
+                        value="{{ getDurationDays .Booking.CheckInDate .Booking.CheckOutDate }}">
+                </div>
             </div>
           </div>
         </div>

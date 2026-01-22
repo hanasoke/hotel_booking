@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"strconv"
 	"strings"
@@ -47,6 +48,28 @@ func LoadTemplate(files ...string) (*template.Template, error) {
 				return "0" + phone[3:]
 			}
 			return phone
+		},
+		"getDurationDays": func(checkIn, checkOut time.Time) string {
+			if checkIn.IsZero() || checkOut.IsZero() {
+				return "0 hari"
+			}
+
+			// Hitung selisih dalam hari
+			duration := checkOut.Sub(checkIn)
+			hours := duration.Hours()
+			days := int(hours / 24)
+
+			// Jika ada sisa jam, tambah 1 hari
+			if hours > float64(days*24) {
+				days++
+			}
+
+			// Minimal 1 hari
+			if days < 1 {
+				days = 1
+			}
+
+			return fmt.Sprintf("%d hari", days)
 		},
 	}
 
